@@ -1,16 +1,10 @@
 import { config, fields, collection } from '@keystatic/core';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 export default config({
-  storage: isProd
-    ? {
-        kind: 'github',
-        repo: 'seanfraserio/seanfraserio',
-      }
-    : {
-        kind: 'local',
-      },
+  storage: {
+    kind: 'github',
+    repo: 'seanfraserio/seanfraserio',
+  },
   ui: {
     brand: {
       name: 'CloudHacks',
