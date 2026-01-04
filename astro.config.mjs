@@ -27,4 +27,15 @@ export default defineConfig({
       wrap: true,
     },
   },
+  vite: {
+    ssr: {
+      external: ['node:fs', 'node:path', 'fs', 'path', 'yaml'],
+    },
+    resolve: {
+      alias: {
+        fs: 'node:fs',
+        path: 'node:path',
+      },
+    },
+  },
 });
