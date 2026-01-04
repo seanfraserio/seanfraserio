@@ -2,8 +2,10 @@ import { config, fields, collection } from '@keystatic/core';
 
 export default config({
   storage: {
-    kind: 'github',
-    repo: 'seanfraserio/seanfraserio',
+    kind: 'cloud',
+  },
+  cloud: {
+    project: 'seanfraserio/seanfraserio',
   },
   ui: {
     brand: {
