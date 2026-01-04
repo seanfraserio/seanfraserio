@@ -1,0 +1,22 @@
+---
+import { makePage } from '@keystatic/astro/ui';
+import keystaticConfig from '../../../keystatic.config';
+
+export const prerender = false;
+
+const KeystaticPage = makePage(keystaticConfig);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CloudHacks CMS</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <KeystaticPage client:only="react" />
+  </body>
+</html>
