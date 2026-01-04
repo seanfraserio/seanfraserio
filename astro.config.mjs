@@ -35,4 +35,9 @@ export default defineConfig({
       wrap: true,
     },
   },
+  vite: {
+    ssr: {
+      external: ['fs', 'path', 'yaml'],
+    },
+  },
 });
