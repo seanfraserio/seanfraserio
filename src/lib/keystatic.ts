@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
-const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
+const BLOG_DIR = path.join(process.cwd(), 'content/blog');
 
 export interface Post {
   slug: string;
