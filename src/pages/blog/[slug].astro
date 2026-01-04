@@ -1,0 +1,319 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import TableOfContents from '@components/TableOfContents.astro';
+import CodeCopyButton from '@components/CodeCopyButton.astro';
+import Comments from '@components/Comments.astro';
+import { getAllPosts, getPost, formatDate, getReadingTime } from '@/lib/keystatic';
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { slug: post.slug },
+  }));
+}
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const post = await getPost(slug);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const { title, description, date, updated, image, imageAlt, category, tags, content } = post;
+const displayTitle = title.name;
+
+// HTML sanitization to prevent XSS
+function sanitizeHtml(html: string): string {
+  // Remove script tags and event handlers
+  let sanitized = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed[^>]*>/gi, '')
+    .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
+    .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/\s*on\w+\s*=\s*[^\s>]+/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, 'data-blocked:')
+    .replace(/vbscript:/gi, '');
+
+  // Sanitize href and src attributes to only allow safe protocols
+  sanitized = sanitized.replace(/href\s*=\s*["']([^"']+)["']/gi, (match, url) => {
+    const lowerUrl = url.toLowerCase().trim();
+    if (lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://') ||
+        lowerUrl.startsWith('/') || lowerUrl.startsWith('#') || lowerUrl.startsWith('mailto:')) {
+      return match;
+    }
+    return 'href="#"';
+  });
+
+  sanitized = sanitized.replace(/src\s*=\s*["']([^"']+)["']/gi, (match, url) => {
+    const lowerUrl = url.toLowerCase().trim();
+    if (lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://') || lowerUrl.startsWith('/')) {
+      return match;
+    }
+    return 'src=""';
+  });
+
+  return sanitized;
+}
+
+// Simple markdown to HTML conversion
+function simpleMarkdownToHtml(md: string): string {
+  // First, escape any existing HTML to prevent injection
+  let escapedMd = md
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Now convert markdown to HTML
+  let html = escapedMd
+    // Images (must be before links) - unescape for valid image tags
+    .replace(/!\[\]\(([^)]+)\)/g, (_, src) => {
+      const decodedSrc = src.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      // Only allow http(s) and relative URLs
+      if (decodedSrc.match(/^(https?:\/\/|\/)/)) {
+        return `<img src="${decodedSrc}" alt="" loading="lazy" class="rounded-lg" />`;
+      }
+      return '';
+    })
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+      const decodedSrc = src.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      const safeAlt = alt.replace(/"/g, '&quot;');
+      if (decodedSrc.match(/^(https?:\/\/|\/)/)) {
+        return `<img src="${decodedSrc}" alt="${safeAlt}" loading="lazy" class="rounded-lg" />`;
+      }
+      return '';
+    })
+    // Code blocks (must be before inline code)
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+    // Headings
+    .replace(/^#### (.+)$/gm, '<h4 id="$1">$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>')
+    // Bold and italic
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Links - validate URLs
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+      const decodedUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      if (decodedUrl.match(/^(https?:\/\/|\/|#|mailto:)/)) {
+        return `<a href="${decodedUrl}" rel="noopener noreferrer">${text}</a>`;
+      }
+      return text;
+    })
+    // Unordered lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    // Ordered lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Paragraphs (lines with content not already processed)
+    .replace(/^(?!<[hluop]|$)(.+)$/gm, '<p>$1</p>')
+    // Clean up consecutive list items
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    // Tables
+    .replace(/\|(.+)\|/g, (match) => {
+      const cells = match.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`);
+      return `<tr>${cells.join('')}</tr>`;
+    });
+
+  // Wrap table rows
+  html = html.replace(/(<tr>.*<\/tr>\n?)+/g, '<table class="w-full">$&</table>');
+
+  // Fix heading IDs
+  html = html.replace(/<h([234]) id="([^"]+)">\2<\/h\1>/g, (_, level, text) => {
+    const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+    return `<h${level} id="${id}">${text}</h${level}>`;
+  });
+
+  // Final sanitization pass
+  return sanitizeHtml(html);
+}
+
+const htmlContent = simpleMarkdownToHtml(content);
+
+// Extract headings for TOC
+const headingMatches = content.matchAll(/^(#{2,3})\s+(.+)$/gm);
+const headings = Array.from(headingMatches).map((match) => ({
+  depth: match[1].length,
+  text: match[2],
+  slug: match[2].toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-'),
+}));
+
+const readingTime = getReadingTime(content);
+
+// Get related posts
+const allPosts = await getAllPosts();
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== slug && p.category === category && !p.draft)
+  .sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title={displayTitle}
+  description={description}
+  image={image || undefined}
+  type="article"
+>
+  <article class="py-12 md:py-16">
+    <!-- Header -->
+    <header class="container-narrow mb-12">
+      <div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <a href="/blog" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+          &larr; Back to Blog
+        </a>
+      </div>
+
+      <span class="badge-primary mb-4">{category}</span>
+
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+        {displayTitle}
+      </h1>
+
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        {description}
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4 mt-6 text-sm text-slate-500 dark:text-slate-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <time datetime={new Date(date).toISOString()}>{formatDate(date)}</time>
+        </div>
+        {updated && (
+          <div class="flex items-center gap-2">
+            <span>Updated:</span>
+            <time datetime={new Date(updated).toISOString()}>{formatDate(updated)}</time>
+          </div>
+        )}
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{readingTime} min read</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Featured Image -->
+    {image && (
+      <div class="container-wide mb-12">
+        <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+          <img
+            src={image}
+            alt={imageAlt || displayTitle}
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    )}
+
+    <!-- Content with Sidebar -->
+    <div class="container-wide">
+      <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-12">
+        <!-- Main Content -->
+        <div class="min-w-0">
+          <div class="prose prose-lg prose-slate dark:prose-dark max-w-none" set:html={htmlContent} />
+
+          <!-- Code Copy Button Script -->
+          <CodeCopyButton />
+
+          <!-- Tags -->
+          {tags.length > 0 && (
+            <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+              <div class="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span class="badge-secondary">#{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Share -->
+          <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
+            <p class="text-sm font-medium text-slate-900 dark:text-white mb-4">Share this article</p>
+            <div class="flex gap-3">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayTitle)}&url=${encodeURIComponent(Astro.url.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-secondary text-sm"
+              >
+                Share on Twitter
+              </a>
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-secondary text-sm"
+              >
+                Share on LinkedIn
+              </a>
+            </div>
+          </div>
+
+          <!-- Comments -->
+          <Comments />
+        </div>
+
+        <!-- Sidebar with TOC -->
+        {headings.length > 2 && (
+          <aside class="hidden lg:block">
+            <div class="sticky top-24">
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        )}
+      </div>
+    </div>
+
+    <!-- Related Posts -->
+    {relatedPosts.length > 0 && (
+      <section class="container-wide mt-16 pt-16 border-t border-slate-200 dark:border-slate-700">
+        <h2 class="section-heading mb-8">Related Articles</h2>
+        <div class="grid gap-6 md:grid-cols-3">
+          {relatedPosts.map((related) => (
+            <a href={`/blog/${related.slug}`} class="card p-5 group">
+              <span class="badge-primary text-xs mb-3">{related.category}</span>
+              <h3 class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                {related.title.name}
+              </h3>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                {related.description}
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .prose-dark {
+    --tw-prose-body: theme('colors.slate.300');
+    --tw-prose-headings: theme('colors.white');
+    --tw-prose-lead: theme('colors.slate.400');
+    --tw-prose-links: theme('colors.primary.400');
+    --tw-prose-bold: theme('colors.white');
+    --tw-prose-counters: theme('colors.slate.400');
+    --tw-prose-bullets: theme('colors.slate.600');
+    --tw-prose-hr: theme('colors.slate.700');
+    --tw-prose-quotes: theme('colors.slate.100');
+    --tw-prose-quote-borders: theme('colors.slate.700');
+    --tw-prose-captions: theme('colors.slate.400');
+    --tw-prose-code: theme('colors.white');
+    --tw-prose-pre-code: theme('colors.slate.300');
+    --tw-prose-pre-bg: theme('colors.slate.800');
+    --tw-prose-th-borders: theme('colors.slate.600');
+    --tw-prose-td-borders: theme('colors.slate.700');
+  }
+</style>

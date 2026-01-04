@@ -1,0 +1,96 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const tools = [
+  {
+    title: 'AI Pricing Calculator',
+    description: 'Compare AI/LLM API pricing across OpenAI, Anthropic, Google, and Mistral. Estimate costs for GPT-4, Claude, Gemini, and more.',
+    href: '/tools/ai-pricing-calculator',
+    icon: '🤖',
+    category: 'AI & ML',
+    isNew: true,
+  },
+  {
+    title: 'Serverless Pricing Calculator',
+    description: 'Compare serverless function pricing across AWS Lambda, Azure Functions, Google Cloud Functions, and Cloudflare Workers.',
+    href: '/tools/pricing-calculator',
+    icon: '⚡',
+    category: 'Cloud Computing',
+    isNew: false,
+  },
+];
+---
+
+<BaseLayout
+  title="Tools"
+  description="Free cloud security and DevOps tools - pricing calculators, security scanners, and productivity utilities."
+>
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-2xl mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+        Tools & Calculators
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        Free tools to help you make better decisions about cloud infrastructure,
+        AI services, and security. All calculations run locally in your browser.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {tools.map((tool) => (
+        <a
+          href={tool.href}
+          class="group relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-600 transition-all"
+        >
+          {tool.isNew && (
+            <span class="absolute top-4 right-4 px-2 py-1 text-xs font-medium bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 rounded-full">
+              New
+            </span>
+          )}
+          <div class="flex items-start gap-4">
+            <span class="text-4xl">{tool.icon}</span>
+            <div class="flex-1">
+              <span class="text-xs font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wide">
+                {tool.category}
+              </span>
+              <h2 class="mt-1 text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                {tool.title}
+              </h2>
+              <p class="mt-2 text-slate-600 dark:text-slate-400 text-sm">
+                {tool.description}
+              </p>
+              <div class="mt-4 inline-flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium">
+                Open tool
+                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <!-- Coming Soon Section -->
+    <div class="mt-16">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Coming Soon</h2>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 opacity-75">
+          <span class="text-2xl">🔒</span>
+          <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Security Header Checker</h3>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Analyze website security headers</p>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 opacity-75">
+          <span class="text-2xl">📊</span>
+          <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Cloud Cost Estimator</h3>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Full infrastructure cost planning</p>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 opacity-75">
+          <span class="text-2xl">🔐</span>
+          <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">IAM Policy Generator</h3>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Generate least-privilege policies</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

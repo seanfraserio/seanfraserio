@@ -1,0 +1,99 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  title?: string;
+}
+
+const { headings, title = 'Table of Contents' } = Astro.props;
+
+// Filter to only h2 and h3 headings
+const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <nav class="toc not-prose p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+    <h2 class="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+      </svg>
+      {title}
+    </h2>
+    <div class="toc-scroll max-h-[calc(100vh-12rem)] overflow-y-auto">
+      <ul class="space-y-1 text-sm pr-2">
+        {filteredHeadings.map((heading) => (
+          <li class:list={[heading.depth === 3 && 'ml-4']}>
+            <a
+              href={`#${heading.slug}`}
+              class="toc-link block py-1.5 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors border-l-2 border-transparent pl-3 -ml-px hover:border-primary-400"
+              data-heading={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+)}
+
+<style>
+  .toc-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184) transparent;
+  }
+  .toc-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .toc-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .toc-scroll::-webkit-scrollbar-thumb {
+    background-color: rgb(148 163 184);
+    border-radius: 3px;
+  }
+  :global(.dark) .toc-scroll {
+    scrollbar-color: rgb(71 85 105) transparent;
+  }
+  :global(.dark) .toc-scroll::-webkit-scrollbar-thumb {
+    background-color: rgb(71 85 105);
+  }
+</style>
+
+<script>
+  // Highlight active heading based on scroll position
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const headings = Array.from(tocLinks).map((link) => {
+    const id = link.getAttribute('data-heading');
+    return document.getElementById(id!);
+  }).filter(Boolean) as HTMLElement[];
+
+  function updateActiveLink() {
+    const scrollPos = window.scrollY + 100;
+
+    let activeIndex = 0;
+    headings.forEach((heading, index) => {
+      if (heading.offsetTop <= scrollPos) {
+        activeIndex = index;
+      }
+    });
+
+    tocLinks.forEach((link, index) => {
+      if (index === activeIndex) {
+        link.classList.add('text-primary-600', 'dark:text-primary-400', 'font-medium', 'border-primary-500');
+        link.classList.remove('text-slate-600', 'dark:text-slate-400', 'border-transparent');
+      } else {
+        link.classList.remove('text-primary-600', 'dark:text-primary-400', 'font-medium', 'border-primary-500');
+        link.classList.add('text-slate-600', 'dark:text-slate-400', 'border-transparent');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  updateActiveLink();
+</script>

@@ -1,0 +1,46 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PricingCalculator from '@components/react/PricingCalculator';
+---
+
+<BaseLayout
+  title="Serverless Pricing Calculator"
+  description="Compare serverless function pricing across AWS Lambda, Azure Functions, Google Cloud Functions, and Cloudflare Workers."
+>
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-2xl mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+        Serverless Pricing Calculator
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        Compare the cost of running serverless functions across major cloud providers.
+        Adjust the parameters below to see estimated monthly costs.
+      </p>
+    </div>
+
+    <PricingCalculator client:load />
+
+    <div class="mt-12 prose prose-slate dark:prose-dark max-w-none">
+      <h2>How Serverless Pricing Works</h2>
+      <p>
+        Serverless pricing is typically based on two main factors:
+      </p>
+      <ul>
+        <li><strong>Number of requests</strong> - Each function invocation incurs a small charge</li>
+        <li><strong>Compute time</strong> - Measured in GB-seconds (memory allocated × execution duration)</li>
+      </ul>
+      <p>
+        All major providers offer generous free tiers, making serverless cost-effective for small to medium workloads.
+        At scale, the differences in pricing models can have significant impact on your bill.
+      </p>
+
+      <h2>Key Considerations</h2>
+      <ul>
+        <li><strong>Cold starts</strong> - Initial invocation latency varies by provider and runtime</li>
+        <li><strong>Regional pricing</strong> - Costs may vary by deployment region</li>
+        <li><strong>Additional services</strong> - API Gateway, storage, and networking add to total cost</li>
+        <li><strong>Reserved concurrency</strong> - Some providers charge for guaranteed capacity</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,11 @@
+# Cloudflare Pages redirects
+# Format: from  to  [status]
+
+# Redirect old Netlify CMS admin path if needed
+# /admin/*  /  302
+
+# Handle trailing slashes consistently
+# /blog  /blog/  301
+
+# Preserve any old URL structures from the migration
+# /posts/:slug  /blog/:slug  301

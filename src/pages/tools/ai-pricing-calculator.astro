@@ -1,0 +1,110 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import AIPricingCalculator from '@components/react/AIPricingCalculator';
+---
+
+<BaseLayout
+  title="AI Pricing Calculator"
+  description="Compare AI and LLM API pricing across OpenAI, Anthropic, Google, and Mistral. Estimate monthly costs for ChatGPT, Claude, Gemini, and more."
+>
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-2xl mb-12">
+      <a href="/tools" class="inline-flex items-center text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 mb-4">
+        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Tools
+      </a>
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+        AI Pricing Calculator
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        Compare the cost of using AI/LLM APIs from major providers including OpenAI (GPT-4),
+        Anthropic (Claude), Google (Gemini), and Mistral AI. Estimate your monthly costs based
+        on usage patterns.
+      </p>
+    </div>
+
+    <AIPricingCalculator client:load />
+
+    <div class="mt-12 prose prose-slate dark:prose-dark max-w-none">
+      <h2>Understanding AI API Pricing</h2>
+      <p>
+        AI model pricing is typically based on <strong>tokens</strong>, which are pieces of text
+        (roughly 4 characters or 0.75 words in English). Pricing is usually quoted per million tokens,
+        with separate rates for input (prompts) and output (completions).
+      </p>
+
+      <h3>Key Pricing Factors</h3>
+      <ul>
+        <li>
+          <strong>Input tokens</strong> - The text you send to the model (system prompts, user messages, context)
+        </li>
+        <li>
+          <strong>Output tokens</strong> - The text the model generates in response
+        </li>
+        <li>
+          <strong>Model tier</strong> - More capable models cost more but may produce better results
+        </li>
+        <li>
+          <strong>Context window</strong> - Larger context windows allow more input but may increase costs
+        </li>
+      </ul>
+
+      <h3>Cost Optimization Tips</h3>
+      <ul>
+        <li>
+          <strong>Choose the right model</strong> - Use smaller, faster models for simple tasks and
+          reserve powerful models for complex reasoning
+        </li>
+        <li>
+          <strong>Optimize prompts</strong> - Concise, well-structured prompts reduce input token costs
+        </li>
+        <li>
+          <strong>Limit output length</strong> - Set max_tokens to control response length when appropriate
+        </li>
+        <li>
+          <strong>Use caching</strong> - Cache common responses to avoid redundant API calls
+        </li>
+        <li>
+          <strong>Batch requests</strong> - Some providers offer discounts for batch processing
+        </li>
+      </ul>
+
+      <h3>Provider Comparison</h3>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Provider</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Strengths</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Best For</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+            <tr>
+              <td class="py-3 px-4 text-slate-900 dark:text-white font-medium">Anthropic (Claude)</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Long context, coding, safety</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Complex analysis, code generation</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-slate-900 dark:text-white font-medium">OpenAI (GPT-4)</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Ecosystem, multimodal, plugins</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">General purpose, vision tasks</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-slate-900 dark:text-white font-medium">Google (Gemini)</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Massive context, cost-effective</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Document processing, long content</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-slate-900 dark:text-white font-medium">Mistral AI</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Open weights, EU-based, efficient</td>
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Cost-sensitive applications</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

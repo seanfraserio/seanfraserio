@@ -1,0 +1,108 @@
+---
+interface Props {
+  repo?: string;
+  repoId?: string;
+  category?: string;
+  categoryId?: string;
+}
+
+const {
+  // Default values - user should replace with their own
+  repo = 'seanfraser/cloudhacks',
+  repoId = '', // Get from https://giscus.app
+  category = 'Blog Comments',
+  categoryId = '', // Get from https://giscus.app
+} = Astro.props;
+---
+
+<section class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+  <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Comments</h2>
+
+  {repoId && categoryId ? (
+    <div
+      id="giscus-container"
+      data-repo={repo}
+      data-repo-id={repoId}
+      data-category={category}
+      data-category-id={categoryId}
+    >
+      <!-- Giscus will be loaded here -->
+    </div>
+  ) : (
+    <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-center">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Comments are powered by GitHub Discussions via Giscus.
+      </p>
+      <p class="text-sm text-slate-500 dark:text-slate-500">
+        To enable comments, configure Giscus at{' '}
+        <a
+          href="https://giscus.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          giscus.app
+        </a>
+        {' '}and update the Comments component with your repo settings.
+      </p>
+    </div>
+  )}
+</section>
+
+<script>
+  function loadGiscus() {
+    const container = document.getElementById('giscus-container');
+    if (!container) return;
+
+    const repo = container.dataset.repo;
+    const repoId = container.dataset.repoId;
+    const category = container.dataset.category;
+    const categoryId = container.dataset.categoryId;
+
+    if (!repoId || !categoryId) return;
+
+    // Check theme
+    const theme = document.documentElement.classList.contains('dark')
+      ? 'dark_dimmed'
+      : 'light';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.dataset.repo = repo;
+    script.dataset.repoId = repoId;
+    script.dataset.category = category;
+    script.dataset.categoryId = categoryId;
+    script.dataset.mapping = 'pathname';
+    script.dataset.strict = '0';
+    script.dataset.reactionsEnabled = '1';
+    script.dataset.emitMetadata = '0';
+    script.dataset.inputPosition = 'top';
+    script.dataset.theme = theme;
+    script.dataset.lang = 'en';
+    script.dataset.loading = 'lazy';
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+
+    container.appendChild(script);
+  }
+
+  // Load on page load
+  loadGiscus();
+
+  // Update theme when toggled
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle?.addEventListener('click', () => {
+    setTimeout(() => {
+      const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+      if (iframe) {
+        const theme = document.documentElement.classList.contains('dark')
+          ? 'dark_dimmed'
+          : 'light';
+        iframe.contentWindow?.postMessage(
+          { giscus: { setConfig: { theme } } },
+          'https://giscus.app'
+        );
+      }
+    }, 100);
+  });
+</script>

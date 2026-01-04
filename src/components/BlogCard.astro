@@ -1,0 +1,76 @@
+---
+import { formatDate } from '@/lib/keystatic';
+
+interface Props {
+  post: {
+    slug: string;
+    title: { name: string; slug: string };
+    description: string;
+    date: string;
+    image: string | null;
+    category: string;
+    featured: boolean;
+  };
+  featured?: boolean;
+}
+
+const { post, featured = false } = Astro.props;
+const { title, description, date, image, category } = post;
+const displayTitle = title.name;
+---
+
+<article class:list={['card group', featured && 'md:col-span-2']}>
+  <a href={`/blog/${post.slug}`} class="block">
+    {image ? (
+      <div class:list={['relative overflow-hidden', featured ? 'h-64 md:h-80' : 'h-48']}>
+        <img
+          src={image}
+          alt={displayTitle}
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <span class="absolute bottom-4 left-4 badge-primary">
+          {category}
+        </span>
+      </div>
+    ) : (
+      <div class:list={['relative bg-gradient-to-br from-primary-500 to-accent-500', featured ? 'h-64 md:h-80' : 'h-48']}>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <svg class="w-16 h-16 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+          </svg>
+        </div>
+        <span class="absolute bottom-4 left-4 badge bg-white/20 text-white backdrop-blur-sm">
+          {category}
+        </span>
+      </div>
+    )}
+
+    <div class="p-5">
+      <div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-2">
+        <time datetime={new Date(date).toISOString()}>
+          {formatDate(date)}
+        </time>
+      </div>
+
+      <h3 class:list={[
+        'font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors',
+        featured ? 'text-xl md:text-2xl' : 'text-lg'
+      ]}>
+        {displayTitle}
+      </h3>
+
+      <p class="mt-2 text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+        {description}
+      </p>
+
+      <div class="mt-4 inline-flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium group-hover:gap-2 transition-all">
+        Read more
+        <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+  </a>
+</article>

@@ -1,0 +1,98 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import BlogCard from '@components/BlogCard.astro';
+import { getPublishedPosts } from '@/lib/keystatic';
+
+const sortedPosts = await getPublishedPosts();
+const categories = [...new Set(sortedPosts.map((post) => post.category))].sort();
+---
+
+<BaseLayout title="Blog" description="Articles on cloud security, cloud computing, and DevOps best practices.">
+  <section class="container-wide py-12 md:py-16">
+    <!-- Header -->
+    <div class="max-w-2xl mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+        Blog
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        Explore articles on cloud security, infrastructure, and modern DevOps practices.
+      </p>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      <button
+        class="category-filter active"
+        data-category="all"
+      >
+        All
+      </button>
+      {categories.map((category) => (
+        <button
+          class="category-filter"
+          data-category={category}
+        >
+          {category}
+        </button>
+      ))}
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="posts-grid">
+      {sortedPosts.map((post) => (
+        <div data-category={post.category}>
+          <BlogCard post={post} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden py-16 text-center">
+      <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p class="mt-4 text-slate-500 dark:text-slate-400">No posts found in this category.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .category-filter {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-100;
+    @apply dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800;
+  }
+
+  .category-filter.active {
+    @apply bg-primary-600 text-white hover:bg-primary-700;
+    @apply dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700;
+  }
+</style>
+
+<script>
+  const filters = document.querySelectorAll('.category-filter');
+  const posts = document.querySelectorAll('#posts-grid > div');
+  const emptyState = document.getElementById('empty-state');
+
+  filters.forEach((filter) => {
+    filter.addEventListener('click', () => {
+      const category = filter.getAttribute('data-category');
+
+      // Update active state
+      filters.forEach((f) => f.classList.remove('active'));
+      filter.classList.add('active');
+
+      // Filter posts
+      let visibleCount = 0;
+      posts.forEach((post) => {
+        const postCategory = post.getAttribute('data-category');
+        const isVisible = category === 'all' || postCategory === category;
+        post.classList.toggle('hidden', !isVisible);
+        if (isVisible) visibleCount++;
+      });
+
+      // Show/hide empty state
+      emptyState?.classList.toggle('hidden', visibleCount > 0);
+    });
+  });
+</script>

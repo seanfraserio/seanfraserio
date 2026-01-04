@@ -1,0 +1,32 @@
+{
+  "name": "cloudhacks-blog",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "CloudHacks - Cloud Security & Computing Blog",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "postbuild": "pagefind --site dist",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^11.0.0",
+    "@astrojs/markdoc": "^0.11.0",
+    "@astrojs/mdx": "^3.1.0",
+    "@astrojs/react": "^3.6.0",
+    "@astrojs/rss": "^4.0.0",
+    "@astrojs/sitemap": "^3.1.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "@keystatic/astro": "^5.0.0",
+    "@keystatic/core": "^0.5.0",
+    "astro": "^4.15.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.14",
+    "pagefind": "^1.1.0",
+    "tailwindcss": "^3.4.10"
+  }
+}
