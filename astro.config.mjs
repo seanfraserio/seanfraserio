@@ -14,7 +14,13 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    imageService: 'passthrough',
   }),
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/noop',
+    },
+  },
   integrations: [
     tailwind(),
     mdx(),
