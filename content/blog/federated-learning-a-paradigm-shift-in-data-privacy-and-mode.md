@@ -30,11 +30,11 @@ Federated Learning addresses a fundamental tension in modern machine learning: t
 
 The approach offers three primary advantages:
 
-**Privacy protection:** Raw data never leaves its original location, minimizing exposure during transmission or storage. This design aligns with data protection regulations like GDPR and CCPA.
+Privacy protection: Raw data never leaves its original location, minimizing exposure during transmission or storage. This design aligns with data protection regulations like GDPR and CCPA.
 
-**Bandwidth efficiency:** Transmitting model updates rather than raw data dramatically reduces network requirements—critical for mobile networks and environments with limited connectivity.
+Bandwidth efficiency: Transmitting model updates rather than raw data dramatically reduces network requirements—critical for mobile networks and environments with limited connectivity.
 
-**Distributed intelligence:** Edge devices contribute directly to model improvement, enabling personalized experiences without centralized data collection.
+Distributed intelligence: Edge devices contribute directly to model improvement, enabling personalized experiences without centralized data collection.
 
 
 
@@ -252,11 +252,11 @@ Industrial applications benefit from distributed learning:
 
 #### Security Hardening
 
-\- **Anomaly detection**: Statistical methods identify potentially malicious updates.
+\- Anomaly detection: Statistical methods identify potentially malicious updates.
 
-\- **Byzantine-fault tolerance**: Aggregation algorithms that remain robust when some participants submit corrupted updates.
+\- Byzantine-fault tolerance: Aggregation algorithms that remain robust when some participants submit corrupted updates.
 
-\- **Differential privacy**: Mathematical guarantees limit information leakage from model updates.
+\- Differential privacy: Mathematical guarantees limit information leakage from model updates.
 
 
 
@@ -300,7 +300,7 @@ Until next time, "Protect Yourselves and Safeguard Each Other"
 
 
 
-### [References](https://blogs.nvidia.com/blog/what-is-federated-learning/)[](https://blogs.nvidia.com/blog/what-is-federated-learning/)
+### References[](https://blogs.nvidia.com/blog/what-is-federated-learning/)
 
 [1. IBM Research. "What is Federated Learning?" https://research.ibm.com/blog/what-is-federated-learning](https://blogs.nvidia.com/blog/what-is-federated-learning/)
 
