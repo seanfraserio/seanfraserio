@@ -31,11 +31,11 @@ Federated Learning addresses a fundamental tension in modern machine learning: t
 
 The approach offers three primary advantages:
 
-Privacy protection: Raw data never leaves its original location, minimizing exposure during transmission or storage. This design aligns with data protection regulations like GDPR and CCPA.
+**Privacy protection:** Raw data never leaves its original location, minimizing exposure during transmission or storage. This design aligns with data protection regulations like GDPR and CCPA.
 
-Bandwidth efficiency: Transmitting model updates rather than raw data dramatically reduces network requirements—critical for mobile networks and environments with limited connectivity.
+**Bandwidth efficiency:** Transmitting model updates rather than raw data dramatically reduces network requirements—critical for mobile networks and environments with limited connectivity.
 
-Distributed intelligence: Edge devices contribute directly to model improvement, enabling personalized experiences without centralized data collection.
+**Distributed intelligence:** Edge devices contribute directly to model improvement, enabling personalized experiences without centralized data collection.
 
 However, FL introduces significant complexity. Aggregating updates from thousands or millions of devices requires sophisticated algorithms. The system remains vulnerable to poisoning attacks, where malicious participants submit corrupted updates. And the inherently heterogeneous, imbalanced data across devices creates challenges for training models that perform well universally.
 
