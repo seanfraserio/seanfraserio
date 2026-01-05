@@ -5,6 +5,7 @@ slug: federated-learning-a-paradigm-shift-in-data-privacy-and-mode
 description: Federated Learning (FL) is a distributed machine-learning technique
   that involves a central server and a group of clients. Clients are…
 date: 2024-03-01
+updated: 2026-01-05
 category: Threat Intelligence
 tags: []
 image: https://images.seanfraser.io/Fed%20Learn%20Main.jpg
