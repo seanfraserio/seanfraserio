@@ -7,11 +7,21 @@
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: accelerometer=(), camera=(), microphone=(), geolocation=(), gyroscope=(), magnetometer=(), payment=(), usb=(), interest-cohort=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://giscus.app https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://cloudflareinsights.com https://giscus.app; frame-src https://giscus.app https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://giscus.app https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://cloudflareinsights.com https://giscus.app https://*.keystatic.cloud https://api.github.com; frame-src https://giscus.app https://challenges.cloudflare.com https://*.keystatic.cloud; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
+
+# Keystatic admin - more permissive CSP needed for CMS functionality
+/keystatic/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.keystatic.cloud; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.keystatic.cloud https://api.github.com wss://*.keystatic.cloud; frame-src https://*.keystatic.cloud; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://*.keystatic.cloud;
+  Cross-Origin-Embedder-Policy: unsafe-none
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+/api/keystatic/*
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.keystatic.cloud https://api.github.com;
+  Cross-Origin-Embedder-Policy: unsafe-none
 
 # Cache static assets
 /assets/*
