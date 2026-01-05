@@ -3,7 +3,7 @@ export const prerender = true;
 
 import BaseLayout from '@layouts/BaseLayout.astro';
 import BlogCard from '@components/BlogCard.astro';
-import { getPublishedPosts } from '@/lib/keystatic';
+import { getPublishedPosts } from '@/lib/content';
 
 const sortedPosts = await getPublishedPosts();
 const categories = [...new Set(sortedPosts.map((post) => post.category))].sort();

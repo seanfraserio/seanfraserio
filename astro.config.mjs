@@ -5,7 +5,6 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
-import keystatic from '@keystatic/astro';
 
 export default defineConfig({
   site: 'https://seanfraser.io',
@@ -22,7 +21,6 @@ export default defineConfig({
     markdoc(),
     sitemap(),
     react(),
-    keystatic(),
   ],
   markdown: {
     shikiConfig: {

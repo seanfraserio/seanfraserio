@@ -1,0 +1,37 @@
+backend:
+  name: github
+  repo: seanfraserio/seanfraserio
+  branch: main
+  base_url: https://seanfraser.io
+  auth_endpoint: /api/auth
+
+media_folder: public/images/blog
+public_folder: /images/blog
+
+collections:
+  - name: blog
+    label: Blog Posts
+    folder: content/blog
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string, required: true }
+      - { label: Slug, name: slug, widget: string, required: true }
+      - { label: Description, name: description, widget: text, required: true }
+      - { label: Publish Date, name: date, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: true }
+      - { label: Updated Date, name: updated, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, required: false }
+      - label: Category
+        name: category
+        widget: select
+        options:
+          - Cloud Security
+          - Cloud Computing
+          - DevOps
+          - Tutorials
+        default: Cloud Computing
+      - { label: Tags, name: tags, widget: list, required: false }
+      - { label: Featured Image, name: image, widget: image, required: false }
+      - { label: Image Alt Text, name: imageAlt, widget: string, required: false }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Body, name: body, widget: markdown }
