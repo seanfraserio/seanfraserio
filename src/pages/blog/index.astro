@@ -3,35 +3,51 @@ export const prerender = true;
 
 import BaseLayout from '@layouts/BaseLayout.astro';
 import BlogCard from '@components/BlogCard.astro';
+import FeaturedSidebar from '@components/FeaturedSidebar.astro';
 import { getPublishedPosts } from '@/lib/content';
 
 const sortedPosts = await getPublishedPosts();
 const categories = [...new Set(sortedPosts.map((post) => post.category))].sort();
+
+// Get featured posts for sidebar (first 5 featured or most recent)
+const featuredPosts = sortedPosts
+  .filter((post) => post.featured)
+  .slice(0, 5);
+
+// If not enough featured posts, fill with recent posts
+const sidebarPosts = featuredPosts.length >= 3
+  ? featuredPosts
+  : sortedPosts.slice(0, 5);
+
+// Main grid posts (exclude featured if showing in sidebar)
+const gridPosts = featuredPosts.length >= 3
+  ? sortedPosts.filter((post) => !post.featured)
+  : sortedPosts;
 ---
 
 <BaseLayout title="Blog" description="Articles on cloud security, cloud computing, and DevOps best practices.">
-  <section class="container-wide py-12 md:py-16">
+  <section class="container-wide py-16 md:py-20">
     <!-- Header -->
-    <div class="max-w-2xl mb-12">
-      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+    <div class="max-w-2xl mb-14">
+      <h1 class="section-heading">
         Blog
       </h1>
-      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+      <p class="mt-5 section-subheading">
         Explore articles on cloud security, infrastructure, and modern DevOps practices.
       </p>
     </div>
 
     <!-- Category Filter -->
-    <div class="flex flex-wrap gap-2 mb-8">
+    <div class="flex flex-wrap gap-2 mb-10">
       <button
-        class="category-filter active"
+        class="category-pill active"
         data-category="all"
       >
         All
       </button>
       {categories.map((category) => (
         <button
-          class="category-filter"
+          class="category-pill"
           data-category={category}
         >
           {category}
@@ -39,40 +55,39 @@ const categories = [...new Set(sortedPosts.map((post) => post.category))].sort()
       ))}
     </div>
 
-    <!-- Posts Grid -->
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="posts-grid">
-      {sortedPosts.map((post) => (
-        <div data-category={post.category}>
-          <BlogCard post={post} />
+    <!-- Main Layout: Posts Grid + Sidebar -->
+    <div class="grid gap-12 lg:grid-cols-[1fr_280px]">
+      <!-- Posts Grid -->
+      <div>
+        <div class="grid gap-8 md:grid-cols-2" id="posts-grid">
+          {gridPosts.map((post) => (
+            <div data-category={post.category}>
+              <BlogCard post={post} />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
 
-    <!-- Empty State -->
-    <div id="empty-state" class="hidden py-16 text-center">
-      <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      <p class="mt-4 text-slate-500 dark:text-slate-400">No posts found in this category.</p>
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden py-20 text-center">
+          <svg class="w-14 h-14 mx-auto text-slate-200 dark:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p class="mt-5 text-slate-400 dark:text-slate-500">No posts found in this category.</p>
+        </div>
+      </div>
+
+      <!-- Featured Sidebar -->
+      <div class="hidden lg:block">
+        <div class="sticky top-24">
+          <FeaturedSidebar posts={sidebarPosts} />
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
-<style>
-  .category-filter {
-    @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors;
-    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-100;
-    @apply dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800;
-  }
-
-  .category-filter.active {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
-    @apply dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700;
-  }
-</style>
-
 <script>
-  const filters = document.querySelectorAll('.category-filter');
+  const filters = document.querySelectorAll('.category-pill');
   const posts = document.querySelectorAll('#posts-grid > div');
   const emptyState = document.getElementById('empty-state');
 

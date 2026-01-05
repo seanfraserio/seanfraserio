@@ -164,29 +164,29 @@ const relatedPosts = allPosts
   image={image || undefined}
   type="article"
 >
-  <article class="py-12 md:py-16">
+  <article class="py-16 md:py-20">
     <!-- Header -->
-    <header class="container-narrow mb-12">
-      <div class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-4">
-        <a href="/blog" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+    <header class="container-narrow mb-14">
+      <div class="flex items-center gap-3 text-sm text-slate-400 dark:text-slate-500 mb-6">
+        <a href="/blog" class="hover:text-accent-600 dark:hover:text-accent-400 transition-colors">
           &larr; Back to Blog
         </a>
       </div>
 
-      <span class="badge-primary mb-4">{category}</span>
+      <span class="badge-accent mb-5">{category}</span>
 
-      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-slate-900 dark:text-white leading-tight tracking-tight">
         {displayTitle}
       </h1>
 
-      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+      <p class="mt-5 text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
         {description}
       </p>
 
-      <div class="flex flex-wrap items-center gap-4 mt-6 text-sm text-slate-500 dark:text-slate-400">
+      <div class="flex flex-wrap items-center gap-6 mt-8 text-sm text-slate-400 dark:text-slate-500">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <time datetime={new Date(date).toISOString()}>{formatDate(date)}</time>
         </div>
@@ -198,7 +198,7 @@ const relatedPosts = allPosts
         )}
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span>{readingTime} min read</span>
         </div>
@@ -207,8 +207,8 @@ const relatedPosts = allPosts
 
     <!-- Featured Image -->
     {image && (
-      <div class="container-wide mb-12">
-        <div class="aspect-video rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <div class="container-wide mb-14">
+        <div class="aspect-video rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/50">
           <img
             src={image}
             alt={imageAlt || displayTitle}
@@ -220,7 +220,7 @@ const relatedPosts = allPosts
 
     <!-- Content with Sidebar -->
     <div class="container-wide">
-      <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-12">
+      <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-16">
         <!-- Main Content -->
         <div class="min-w-0">
           <div class="prose prose-lg prose-slate dark:prose-dark max-w-none" set:html={htmlContent} />
@@ -230,7 +230,7 @@ const relatedPosts = allPosts
 
           <!-- Tags -->
           {tags.length > 0 && (
-            <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+            <div class="mt-14 pt-10 border-t border-slate-100 dark:border-slate-800">
               <div class="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                   <span class="badge-secondary">#{tag}</span>
@@ -240,8 +240,8 @@ const relatedPosts = allPosts
           )}
 
           <!-- Share -->
-          <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
-            <p class="text-sm font-medium text-slate-900 dark:text-white mb-4">Share this article</p>
+          <div class="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800">
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-5">Share this article</p>
             <div class="flex gap-3">
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayTitle)}&url=${encodeURIComponent(Astro.url.href)}`}
@@ -279,16 +279,16 @@ const relatedPosts = allPosts
 
     <!-- Related Posts -->
     {relatedPosts.length > 0 && (
-      <section class="container-wide mt-16 pt-16 border-t border-slate-200 dark:border-slate-700">
-        <h2 class="section-heading mb-8">Related Articles</h2>
-        <div class="grid gap-6 md:grid-cols-3">
+      <section class="container-wide mt-20 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <h2 class="section-heading mb-10">Related Articles</h2>
+        <div class="grid gap-8 md:grid-cols-3">
           {relatedPosts.map((related) => (
-            <a href={`/blog/${related.slug}`} class="card p-5 group">
-              <span class="badge-primary text-xs mb-3">{related.category}</span>
-              <h3 class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+            <a href={`/blog/${related.slug}`} class="card p-6 group">
+              <span class="badge-accent text-xs mb-4">{related.category}</span>
+              <h3 class="font-semibold text-slate-900 dark:text-white group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors duration-200">
                 {related.title}
               </h3>
-              <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+              <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                 {related.description}
               </p>
             </a>
@@ -304,18 +304,23 @@ const relatedPosts = allPosts
     --tw-prose-body: theme('colors.slate.300');
     --tw-prose-headings: theme('colors.white');
     --tw-prose-lead: theme('colors.slate.400');
-    --tw-prose-links: theme('colors.primary.400');
+    --tw-prose-links: theme('colors.accent.400');
     --tw-prose-bold: theme('colors.white');
     --tw-prose-counters: theme('colors.slate.400');
     --tw-prose-bullets: theme('colors.slate.600');
-    --tw-prose-hr: theme('colors.slate.700');
+    --tw-prose-hr: theme('colors.slate.800');
     --tw-prose-quotes: theme('colors.slate.100');
-    --tw-prose-quote-borders: theme('colors.slate.700');
+    --tw-prose-quote-borders: theme('colors.accent.700');
     --tw-prose-captions: theme('colors.slate.400');
     --tw-prose-code: theme('colors.white');
     --tw-prose-pre-code: theme('colors.slate.300');
     --tw-prose-pre-bg: theme('colors.slate.800');
     --tw-prose-th-borders: theme('colors.slate.600');
     --tw-prose-td-borders: theme('colors.slate.700');
+  }
+
+  .prose a {
+    @apply text-accent-600 hover:text-accent-700 dark:text-accent-400 dark:hover:text-accent-300;
+    @apply transition-colors duration-200;
   }
 </style>

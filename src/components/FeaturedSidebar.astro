@@ -1,0 +1,41 @@
+---
+import { formatDate } from '@/lib/content';
+
+interface Props {
+  posts: {
+    slug: string;
+    title: string;
+    date: string;
+    category: string;
+  }[];
+}
+
+const { posts } = Astro.props;
+---
+
+<aside class="featured-sidebar">
+  <h3 class="text-xs font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400 mb-6">
+    Featured
+  </h3>
+
+  <div class="space-y-6">
+    {posts.map((post, index) => (
+      <a
+        href={`/blog/${post.slug}`}
+        class="block group"
+      >
+        <article class="space-y-2">
+          <span class="text-xs text-slate-400 dark:text-slate-500">
+            {formatDate(post.date)}
+          </span>
+          <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors duration-200 line-clamp-2">
+            {post.title}
+          </h4>
+        </article>
+        {index < posts.length - 1 && (
+          <div class="mt-6 border-b border-slate-100 dark:border-slate-800" />
+        )}
+      </a>
+    ))}
+  </div>
+</aside>
