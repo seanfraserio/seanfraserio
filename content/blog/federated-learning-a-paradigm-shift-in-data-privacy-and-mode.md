@@ -46,13 +46,13 @@ However, FL introduces significant complexity. Aggregating updates from thousand
 
 Federated Learning operates on four foundational principles:
 
-1. Data locality: Information stays where it originates. Devices or organizations process data locally, eliminating the need to transmit sensitive information to external servers.
+1. Data Locality: Information stays where it originates. Devices or organizations process data locally, eliminating the need to transmit sensitive information to external servers.
 
-2. Collaborative model training: The central server distributes a global model; clients compute updates (typically gradients or parameter changes) based on local data and return them. The server aggregates these contributions to improve the global model iteratively.
+2. Collaborative Model Training: The central server distributes a global model; clients compute updates (typically gradients or parameter changes) based on local data and return them. The server aggregates these contributions to improve the global model iteratively.
 
 3. Privacy by design: FL incorporates privacy-preserving mechanisms such as differential privacy (adding calibrated noise to updates) and secure aggregation (cryptographic protocols that prevent the server from inspecting individual contributions).
 
-4. Communication efficiency:Processing data locally and exchanging only compact model updates reduces bandwidth requirements, enabling participation from devices with limited connectivity.
+4. Communication Efficiency:Processing data locally and exchanging only compact model updates reduces bandwidth requirements, enabling participation from devices with limited connectivity.
 
 
 
