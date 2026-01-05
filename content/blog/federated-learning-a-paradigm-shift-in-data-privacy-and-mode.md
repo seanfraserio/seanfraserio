@@ -248,7 +248,7 @@ Until next time, "Protect Yourselves and Safeguard Each Other"
 
 — Sean
 
-### References[](https://blogs.nvidia.com/blog/what-is-federated-learning/)
+### References
 
 [1. IBM Research. "What is Federated Learning?" https://research.ibm.com/blog/what-is-federated-learning](https://blogs.nvidia.com/blog/what-is-federated-learning/)
 
