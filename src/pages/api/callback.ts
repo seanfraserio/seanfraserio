@@ -6,8 +6,8 @@ export const GET: APIRoute = async (context) => {
   const runtime = (context.locals as any).runtime;
   const env = runtime?.env || {};
 
-  const clientId = env.OAUTH_GITHUB_CLIENT_ID || process.env.OAUTH_GITHUB_CLIENT_ID;
-  const clientSecret = env.OAUTH_GITHUB_CLIENT_SECRET || process.env.OAUTH_GITHUB_CLIENT_SECRET;
+  const clientId = env.OAUTH_GITHUB_CLIENT_ID || env.KEYSTATIC_GITHUB_CLIENT_ID || process.env.OAUTH_GITHUB_CLIENT_ID || process.env.KEYSTATIC_GITHUB_CLIENT_ID;
+  const clientSecret = env.OAUTH_GITHUB_CLIENT_SECRET || env.KEYSTATIC_GITHUB_CLIENT_SECRET || process.env.OAUTH_GITHUB_CLIENT_SECRET || process.env.KEYSTATIC_GITHUB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     return new Response('OAuth not configured', { status: 500 });
