@@ -57,8 +57,8 @@ export default config({
         ),
         image: fields.image({
           label: 'Featured Image',
-          directory: 'public/images/posts',
-          publicPath: '/images/posts/',
+          directory: 'public/images/blog',
+          publicPath: '/images/blog/',
         }),
         imageAlt: fields.text({
           label: 'Image Alt Text',
