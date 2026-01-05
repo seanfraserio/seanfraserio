@@ -11,7 +11,7 @@ image: ""
 featured: false
 draft: false
 ---
-![SD-WAN](https://pub-3a8efc582efc40e4890288593529005a.r2.dev/SD%20WAN.jpg "SD-WAN")
+![SD-WAN](https://images.seanfraser.io/SD%20WAN.jpg "SD-WAN")
 
 SD-WAN
 
