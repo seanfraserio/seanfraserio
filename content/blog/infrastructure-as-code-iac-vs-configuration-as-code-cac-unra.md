@@ -15,11 +15,9 @@ draft: false
 ---
 Infrastructure as Code operates under the principle of managing and provisioning computing infrastructure through machine-readable definition files rather than physical hardware or interactive configuration tools. This approach aligns with modern software development practices like version control and source control, automated testing, and continuous integration/continuous delivery (CI/CD) pipelines. The goal is to maintain consistency and reliability when deploying and operating software in a safe, consistent, trackable, and repeatable way by defining resource configurations that can be versioned, reused, and shared. Configuration, as Code (CaC) tools such as Ansible, Puppet, Chef, and SaltStack assist in managing configurations according to the desired state, thereby improving stability and predictability in software environments.
 
-![IAC Infra As Code](https://images.seanfraser.io/InfrasAsCode.jpg "IAC Infra As Code")
 
-*(Image Source: Pixabay.com)*
 
-### **Historical Development of Infrastructure as Code (IaC) and Configuration as Code (CaC)**
+### Historical Development of Infrastructure as Code (IaC) and Configuration as Code (CaC
 
 In the past, IT operations relied heavily on setups and configurations, which took up much time and tended to contain errors. This made it challenging to achieve scalable IT operations. However, introducing automation tools brought about a shift towards a code-centric approach. This approach paved the way for Infrastructure as Code (IaC) and Configuration as Code (CaC), a combination of scripts and code that completely transformed IT infrastructure management. IaC allows system administrators to use code to automate tasks like provisioning, configuring, and managing infrastructure, replacing the manual process that can take hours with an automated process that can be measured in minutes. This not only improves efficiency and scalability but also eliminates many problems associated with manual infrastructure provisioning and configuration. With the rise of infrastructure automation, teams across the enterprise can work quickly and more efficiently, thanks to the visibility provided by this approach.
 
@@ -127,7 +125,7 @@ This practice aids in avoiding any discrepancies in configuration. Guarantees th
 
 
 
-### **Community Support**
+### Community Support
 
 The popularity of Infrastructure as Code (IaC) and Configuration as Code (CaC) can also be attributed to the communities and support systems that have developed around them. These communities offer resources such as documentation, forums, and tutorials that help users implement and troubleshoot these methodologies effectively.
 
