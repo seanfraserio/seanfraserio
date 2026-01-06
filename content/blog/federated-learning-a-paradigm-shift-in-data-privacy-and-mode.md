@@ -16,7 +16,7 @@ Modern machine learning thrives on data—the more diverse and abundant, the bet
 
 ### What Is Federated Learning?
 
-Federated Learning is a distributed approach to machine learning where the data never leaves its source. Instead of gathering information into a central repository for training, FL brings the model to the data. A coordinating server distributes a global model to participating clients—whether smartphones, hospital systems, or corporate data centers—and each client trains the model using its local data. The clients then send back only their model updates, not the underlying data. The server aggregates these updates, improves the global model, and begins the next round. This cycle continues until the model reaches acceptable performance
+Federated Learning is a distributed approach to machine learning where the data never leaves its source. Instead of gathering information into a central repository for training, FL brings the model to the data. A coordinating server distributes a global model to participating clients—whether smartphones, hospital systems, or corporate data centers—and each client trains the model using its local data. The clients then send back only their model updates, not the underlying data. The server aggregates these updates, improves the global model, and begins the next round. This cycle continues until the model reaches acceptable performance.
 
 ![](https://images.seanfraser.io/Fed%20Learn%20Main.jpg)
 
