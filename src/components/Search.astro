@@ -82,16 +82,25 @@
 
       try {
         loadPagefindCSS();
-        // Dynamic import using Function to avoid Vite analysis
-        const importFn = new Function('return import("/pagefind/pagefind-ui.js")');
-        const module = await importFn();
-        pagefindUI = new module.PagefindUI({
+
+        // Load pagefind-ui.js via script tag if not already loaded
+        if (!(window as any).PagefindUI) {
+          await new Promise<void>((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/pagefind/pagefind-ui.js';
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load Pagefind'));
+            document.head.appendChild(script);
+          });
+        }
+
+        pagefindUI = new (window as any).PagefindUI({
           element: '#search-content',
           showSubResults: true,
           showImages: false,
         });
       } catch (e) {
-        console.log('Pagefind not available - run npm run build first');
+        console.error('Pagefind error:', e);
         const content = document.getElementById('search-content');
         if (content) {
           content.innerHTML = '<p class="text-slate-500 dark:text-slate-400 text-center py-8">Search is available after building the site.<br/>Run <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">npm run build</code> to enable.</p>';
