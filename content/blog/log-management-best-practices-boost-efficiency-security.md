@@ -1,7 +1,9 @@
 ---
-title: "Log Management Best Practices: From Collection to Compliance in 2025"
+title: "Log Management Best Practices: From Collection to Compliance in 2026"
 slug: log-management-best-practices-boost-efficiency-security
-description: Your logs are either solving problems or creating them. Learn how to build a log management pipeline that scales, from structured logging and shipping architectures to retention policies and compliance requirements.
+description: Your logs are either solving problems or creating them. Learn how
+  to build a log management pipeline that scales, from structured logging and
+  shipping architectures to retention policies and compliance requirements.
 date: 2024-06-22
 updated: 2025-01-07
 category: Observability
@@ -257,6 +259,136 @@ Three tools dominate production log shipping: Fluent Bit, Fluentd, and Vector. E
 
 **Vector** is the newer entrant from Datadog, written in Rust with a focus on performance and observability pipeline unification (logs, metrics, traces).
 
+### Fluent Bit Configuration for Kubernetes
+
+Deploy Fluent Bit as a DaemonSet to collect container logs:
+
+```yaml
+# fluent-bit-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+        Health_Check  On
+
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     50MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Merge_Log_Key       log_processed
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude Off
+
+    [FILTER]
+        Name          modify
+        Match         kube.*
+        Add           cluster production-us-east-1
+        Add           collected_by fluent-bit
+
+    [OUTPUT]
+        Name            es
+        Match           kube.*
+        Host            elasticsearch.logging.svc.cluster.local
+        Port            9200
+        Logstash_Format On
+        Logstash_Prefix k8s-logs
+        Retry_Limit     False
+        tls             On
+        tls.verify      Off
+
+  parsers.conf: |
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+```
+
+Deploy the DaemonSet:
+
+```yaml
+# fluent-bit-daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      serviceAccountName: fluent-bit
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.2
+          ports:
+            - containerPort: 2020
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: config
+              mountPath: /fluent-bit/etc/
+          resources:
+            limits:
+              memory: 200Mi
+              cpu: 200m
+            requests:
+              memory: 100Mi
+              cpu: 100m
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: config
+          configMap:
+            name: fluent-bit-config
+```
+
 ### Vector Configuration for Multi-Destination Shipping
 
 Vector excels at routing logs to multiple destinations with transformation:
@@ -358,6 +490,46 @@ The log backend decision has long-term cost and operational implications. The th
 
 Elasticsearch remains the most deployed option, offering powerful full-text search and aggregation. The ELK stack (Elasticsearch, Logstash, Kibana) or its modern variant (Elasticsearch, Beats, Kibana) provides a complete solution.
 
+```bash
+# Deploy Elasticsearch on Kubernetes with ECK operator
+kubectl create -f https://download.elastic.co/downloads/eck/2.10.0/crds.yaml
+kubectl apply -f https://download.elastic.co/downloads/eck/2.10.0/operator.yaml
+
+# Create Elasticsearch cluster
+cat <<EOF | kubectl apply -f -
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: logs
+  namespace: logging
+spec:
+  version: 8.11.0
+  nodeSets:
+  - name: default
+    count: 3
+    config:
+      node.store.allow_mmap: false
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: 2
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: fast-ssd
+EOF
+```
+
 Query Elasticsearch for troubleshooting:
 
 ```bash
@@ -411,6 +583,62 @@ curl -X GET "elasticsearch:9200/logs-*/_search" \
 ### Grafana Loki
 
 Loki takes a different approach—it indexes only labels (metadata), not log content. This dramatically reduces storage and operational costs while still enabling effective log exploration. Loki pairs with Grafana for visualization and uses LogQL for queries.
+
+```yaml
+# loki-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: logging
+data:
+  loki.yaml: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9096
+
+    common:
+      path_prefix: /loki
+      storage:
+        filesystem:
+          chunks_directory: /loki/chunks
+          rules_directory: /loki/rules
+      replication_factor: 1
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: inmemory
+
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: tsdb
+          object_store: filesystem
+          schema: v12
+          index:
+            prefix: index_
+            period: 24h
+
+    storage_config:
+      tsdb_shipper:
+        active_index_directory: /loki/tsdb-index
+        cache_location: /loki/tsdb-cache
+        cache_ttl: 24h
+
+    limits_config:
+      retention_period: 720h
+      max_query_parallelism: 32
+      max_query_series: 10000
+
+    chunk_store_config:
+      max_look_back_period: 0s
+
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 720h
+```
 
 LogQL queries for common scenarios:
 
@@ -750,6 +978,67 @@ def configure_otel_logging(service_name: str):
     logging.getLogger().addHandler(handler)
 
     return logger_provider
+```
+
+OpenTelemetry Collector configuration for logs:
+
+```yaml
+# otel-collector-config.yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  filelog:
+    include: [/var/log/**/*.log]
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.timestamp
+          layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+
+  attributes:
+    actions:
+      - key: environment
+        value: production
+        action: insert
+
+  resource:
+    attributes:
+      - key: cluster
+        value: us-east-1
+        action: insert
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://elasticsearch:9200"]
+    logs_index: otel-logs
+    sending_queue:
+      enabled: true
+      num_consumers: 10
+      queue_size: 1000
+
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      attributes:
+        service.name: "service"
+        level: "severity"
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp, filelog]
+      processors: [batch, attributes, resource]
+      exporters: [elasticsearch, loki]
 ```
 
 ## Troubleshooting Common Issues
