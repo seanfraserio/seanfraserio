@@ -1,7 +1,11 @@
 ---
-title: "Infrastructure as Code (IaC) vs. Configuration as Code (CaC): Understanding the Differences"
+title: "Infrastructure as Code (IaC) vs. Configuration as Code (CaC):
+  Understanding the Differences"
 slug: infrastructure-as-code-iac-vs-configuration-as-code-cac-unra
-description: A comprehensive guide to Infrastructure as Code and Configuration as Code. Learn the key differences between IaC tools like Terraform, Pulumi, and OpenTofu versus CaC tools like Ansible and Chef, with practical examples and best practices.
+description: A comprehensive guide to Infrastructure as Code and Configuration
+  as Code. Learn the key differences between IaC tools like Terraform, Pulumi,
+  and OpenTofu versus CaC tools like Ansible and Chef, with practical examples
+  and best practices.
 date: 2024-01-28
 updated: 2026-01-06
 category: DevOps
@@ -15,7 +19,7 @@ tags:
   - Platform Engineering
 image: https://images.seanfraser.io/InfrasAsCode.jpg
 imageAlt: Infrastructure as Code Workflow Diagram
-featured: false
+featured: true
 draft: false
 ---
 
