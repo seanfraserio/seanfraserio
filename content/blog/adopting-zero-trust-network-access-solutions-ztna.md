@@ -11,8 +11,6 @@ image: https://images.seanfraser.io/datasheet-zero-trust-network-access-ztna.jpe
 featured: false
 draft: false
 ---
-![]()
-
 ZTNA Image
 
 ### Introduction
