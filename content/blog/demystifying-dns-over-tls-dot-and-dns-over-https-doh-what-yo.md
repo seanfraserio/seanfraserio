@@ -109,21 +109,60 @@ For DNS queries, which are typically small and latency-sensitive, this performan
 
 DoQ uses UDP port 853—the same port number as DoT but over UDP rather than TCP. This means it's distinguishable from regular traffic and can be blocked by firewalls that filter on port numbers, similar to DoT. However, the performance benefits may make this tradeoff worthwhile for environments where blocking isn't a concern.
 
-Adoption remains limited compared to DoT and DoH. AdGuard DNS and NextDNS support DoQ, as do a few other privacy-focused resolvers. Browser support is nonexistent at present—you need dedicated client software to use DoQ. But as QUIC adoption grows for web traffic through HTTP/3, the infrastructure and expertise needed to support DoQ will become more widespread. Organizations planning their encrypted DNS strategy should keep DoQ on their radar as a future option, even if it's not practical for immediate deployment.
+Adoption remains limited compared to DoT and DoH. AdGuard DNS and NextDNS support DoQ, as do a few other privacy-focused resolvers:
+
+```
+# DoQ resolver endpoints
+quic://dns.adguard.com
+quic://dns.nextdns.io
+```
+
+Browser support is nonexistent at present—you need dedicated client software to use DoQ. But as QUIC adoption grows for web traffic through HTTP/3, the infrastructure and expertise needed to support DoQ will become more widespread. Organizations planning their encrypted DNS strategy should keep DoQ on their radar as a future option, even if it's not practical for immediate deployment.
 
 ## Configuring Encrypted DNS Across Platforms
 
 Implementation details vary significantly across operating systems and browsers, and understanding these differences helps you plan a deployment that works for your specific environment.
 
-Windows 11 includes native DoH support, accessible through the network settings interface. Navigate to Settings, then Network & Internet, select your WiFi or Ethernet connection, and edit the DNS server assignment. You'll see options for "Encrypted only (DNS over HTTPS)" which refuses to fall back to unencrypted DNS, or "Encrypted preferred, unencrypted allowed" which tries DoH first but accepts plaintext responses if encrypted resolution fails. The latter option provides better reliability at the cost of potentially exposing some queries. Microsoft designed this flexibility to accommodate networks where DoH isn't fully functional while still encouraging encryption where possible.
+Windows 11 includes native DoH support, accessible through the network settings interface:
+
+```
+Settings → Network & Internet → Wi-Fi (or Ethernet) → DNS server assignment → Edit
+```
+
+You'll see options for "Encrypted only (DNS over HTTPS)" which refuses to fall back to unencrypted DNS, or "Encrypted preferred, unencrypted allowed" which tries DoH first but accepts plaintext responses if encrypted resolution fails. The latter option provides better reliability at the cost of potentially exposing some queries. Microsoft designed this flexibility to accommodate networks where DoH isn't fully functional while still encouraging encryption where possible.
 
 macOS handles encrypted DNS differently, requiring the installation of a configuration profile to enable DoH or DoT system-wide. Apple provides documentation for creating these profiles, or you can use profiles provided by DNS resolver operators. The 1.1.1.1 app from Cloudflare, for example, can install the necessary profile automatically. This profile-based approach gives Apple centralized control over DNS configuration, which aligns with their broader security model but requires more setup than the Windows approach.
 
-Android versions 9 and later support DoT natively through the Private DNS setting. Navigate to Settings, then Network & Internet, and look for Private DNS. You can enter the hostname of a DoT resolver like dns.google or one.one.one.one, and the system will automatically encrypt all DNS queries. Note that this setting uses hostnames rather than IP addresses, which means Android needs to perform an initial unencrypted DNS lookup to find the resolver's IP—a bootstrap problem that's unavoidable without hardcoding resolver addresses. It's a minor privacy leak but generally acceptable given the protection for all subsequent queries.
+Android versions 9 and later support DoT natively through the Private DNS setting:
+
+```
+Settings → Network & Internet → Private DNS
+```
+
+You can enter the hostname of a DoT resolver, and the system will automatically encrypt all DNS queries:
+
+```
+# Common DoT resolver hostnames for Android
+dns.google
+one.one.one.one
+dns.quad9.net
+```
+
+Note that this setting uses hostnames rather than IP addresses, which means Android needs to perform an initial unencrypted DNS lookup to find the resolver's IP—a bootstrap problem that's unavoidable without hardcoding resolver addresses. It's a minor privacy leak but generally acceptable given the protection for all subsequent queries.
 
 iOS 14 and later support both DoH and DoT, but like macOS, configuration requires a profile or a dedicated app. The Cloudflare 1.1.1.1 app, DNSCloak, and NextDNS all provide iOS apps that configure encrypted DNS. These apps typically work by installing a local VPN profile that intercepts DNS queries and forwards them encrypted, which sounds more invasive than it is—the "VPN" in this case only handles DNS traffic, not your general internet connection.
 
-For browsers, the configuration varies by vendor but follows similar patterns. In Firefox, navigate to Settings, then Privacy & Security, scroll to DNS over HTTPS, and select your preferred protection level. Firefox offers options to use the default resolver with DoH if supported, use a specific DoH provider like Cloudflare or NextDNS, or disable DoH entirely. Chrome's DoH settings are in Settings under Privacy and Security, then Security, with a "Use secure DNS" toggle and provider selection. Both browsers maintain their own DNS resolution stack separate from the operating system when DoH is enabled, which is why browser-level DoH can bypass system-level DNS configuration.
+For browsers, the configuration varies by vendor but follows similar patterns:
+
+```
+# Firefox DoH configuration
+Settings → Privacy & Security → DNS over HTTPS
+
+# Chrome DoH configuration
+Settings → Privacy and Security → Security → Use secure DNS
+```
+
+Firefox offers options to use the default resolver with DoH if supported, use a specific DoH provider like Cloudflare or NextDNS, or disable DoH entirely. Chrome provides a similar toggle with provider selection. Both browsers maintain their own DNS resolution stack separate from the operating system when DoH is enabled, which is why browser-level DoH can bypass system-level DNS configuration.
 
 ## Enterprise Deployment: Balancing Security and Visibility
 
@@ -143,13 +182,61 @@ Monitoring for encrypted DNS bypass is also important in enterprise environments
 
 If you're configuring encrypted DNS for personal use or selecting an external resolver for enterprise deployment, the choice of provider matters more than you might think. Different resolvers offer different privacy policies, performance characteristics, and additional features that can align better or worse with your specific needs.
 
-Cloudflare's 1.1.1.1 service emphasizes privacy above almost everything else, committing to never log querying IP addresses and deleting all query logs within 24 hours. Cloudflare operates one of the largest global networks, which generally translates to low latency regardless of your geographic location. The service supports DoT on the standard port 853 and DoH at `https://1.1.1.1/dns-query`. Cloudflare also offers variants with content filtering—1.1.1.2 blocks known malware domains, and 1.1.1.3 blocks both malware and adult content. For families or organizations wanting basic protection without managing their own filtering, these variants provide a middle ground.
+Cloudflare's 1.1.1.1 service emphasizes privacy above almost everything else, committing to never log querying IP addresses and deleting all query logs within 24 hours. Cloudflare operates one of the largest global networks, which generally translates to low latency regardless of your geographic location:
 
-Google's 8.8.8.8 has been the most widely used public DNS resolver for years, long before encrypted DNS was a consideration. Google does log queries, retaining full data for 24-48 hours and anonymized data longer for analysis purposes. Privacy advocates sometimes object to this logging, though Google argues the data helps them improve the service and detect abuse. The performance is generally excellent given Google's global infrastructure, and support for DoT and DoH is available at the expected endpoints.
+```
+# Cloudflare DNS endpoints
+DoT:  1.1.1.1:853 or 1.0.0.1:853
+DoH:  https://1.1.1.1/dns-query
 
-Quad9 at 9.9.9.9 differentiates itself through security-focused filtering. The service blocks known malicious domains by default, providing a layer of protection against malware, phishing, and command-and-control traffic. Quad9 commits to not logging personally identifiable information, and the organization operates as a nonprofit, which some users find reassuring compared to commercial providers. For users or organizations wanting both encryption and threat protection without managing their own filtering infrastructure, Quad9 represents a compelling option.
+# Cloudflare with malware blocking
+1.1.1.2 / 1.0.0.2
 
-NextDNS and AdGuard DNS offer customizable filtering and logging policies that go far beyond what the major providers offer. These services let you create profiles with specific blocking rules, view query logs if desired, and configure features like ad blocking at the DNS level. Both support DoQ in addition to DoT and DoH, making them attractive for users who want to experiment with the latest protocols. The configurability makes them attractive for users who want fine-grained control over their DNS behavior without running their own infrastructure.
+# Cloudflare with malware + adult content blocking
+1.1.1.3 / 1.0.0.3
+```
+
+For families or organizations wanting basic protection without managing their own filtering, these variants provide a middle ground.
+
+Google's 8.8.8.8 has been the most widely used public DNS resolver for years, long before encrypted DNS was a consideration. Google does log queries, retaining full data for 24-48 hours and anonymized data longer for analysis purposes. Privacy advocates sometimes object to this logging, though Google argues the data helps them improve the service and detect abuse:
+
+```
+# Google DNS endpoints
+DoT:  8.8.8.8:853 or 8.8.4.4:853
+DoH:  https://dns.google/dns-query
+```
+
+The performance is generally excellent given Google's global infrastructure.
+
+Quad9 at 9.9.9.9 differentiates itself through security-focused filtering. The service blocks known malicious domains by default, providing a layer of protection against malware, phishing, and command-and-control traffic:
+
+```
+# Quad9 DNS endpoints (with threat blocking)
+DoT:  9.9.9.9:853
+DoH:  https://dns.quad9.net/dns-query
+
+# Quad9 without filtering
+DoT:  9.9.9.10:853
+DoH:  https://dns10.quad9.net/dns-query
+```
+
+Quad9 commits to not logging personally identifiable information, and the organization operates as a nonprofit, which some users find reassuring compared to commercial providers.
+
+NextDNS and AdGuard DNS offer customizable filtering and logging policies that go far beyond what the major providers offer. These services let you create profiles with specific blocking rules, view query logs if desired, and configure features like ad blocking at the DNS level:
+
+```
+# AdGuard DNS endpoints
+DoT:  94.140.14.14:853
+DoH:  https://dns.adguard.com/dns-query
+DoQ:  quic://dns.adguard.com
+
+# NextDNS endpoints (requires account for custom config)
+DoT:  <config-id>.dns.nextdns.io
+DoH:  https://dns.nextdns.io/<config-id>
+DoQ:  quic://dns.nextdns.io
+```
+
+Both support DoQ in addition to DoT and DoH, making them attractive for users who want to experiment with the latest protocols. The configurability makes them ideal for users who want fine-grained control over their DNS behavior without running their own infrastructure.
 
 ## Troubleshooting When Things Go Wrong
 
