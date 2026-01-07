@@ -1,7 +1,9 @@
 ---
 title: "DNS Encryption Explained: DoT, DoH, and DoQ for Network Engineers"
 slug: demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo
-description: Your DNS queries are visible to everyone between you and your resolver. Learn how DoT, DoH, and DoQ encrypt DNS traffic—with practical configuration and troubleshooting guidance for 2025.
+description: Your DNS queries are visible to everyone between you and your
+  resolver. Learn how DoT, DoH, and DoQ encrypt DNS traffic—with practical
+  configuration and troubleshooting guidance for 2025.
 date: 2025-01-07
 category: Network Security
 tags:
@@ -13,7 +15,7 @@ tags:
   - Network Security
   - Privacy
 image: /images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-0.png
-featured: false
+featured: true
 draft: false
 ---
 
