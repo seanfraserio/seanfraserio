@@ -1,9 +1,11 @@
 ---
 title: "Why Your VPN Is a Liability: Making the Switch to Zero Trust Network Access"
 slug: adopting-zero-trust-network-access-solutions-ztna
-description: Your perimeter security model was designed for a world that no longer exists. Learn how ZTNA addresses what VPNs never could, with practical implementation guidance for 2025.
+description: Your perimeter security model was designed for a world that no
+  longer exists. Learn how ZTNA addresses what VPNs never could, with practical
+  implementation guidance for 2025.
 date: 2024-05-07
-updated: 2025-01-07
+updated: 2026-01-07
 category: Cloud Security
 tags:
   - ZTNA
