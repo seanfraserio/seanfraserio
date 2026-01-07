@@ -1,7 +1,9 @@
 ---
 title: "AI Security: A Comprehensive Guide to Protecting Enterprise AI Systems"
 slug: ai-security-comprehensive-guide-protecting-enterprise-ai-systems
-description: Master AI security with this executive guide covering OWASP LLM Top 10, MITRE ATLAS, prompt injection defenses, AI governance frameworks, and red teaming strategies. Includes implementation code and compliance roadmaps.
+description: Master AI security with this executive guide covering OWASP LLM Top
+  10, MITRE ATLAS, prompt injection defenses, AI governance frameworks, and red
+  teaming strategies. Includes implementation code and compliance roadmaps.
 date: 2026-01-07
 category: AI Security
 tags:
@@ -13,7 +15,7 @@ tags:
   - AI Governance
   - Machine Learning Security
   - Generative AI
-image: https://images.seanfraser.io/ai-security-guide.jpg
+image: https://images.seanfraser.io/AI%20Security%202.png
 featured: true
 draft: false
 ---
