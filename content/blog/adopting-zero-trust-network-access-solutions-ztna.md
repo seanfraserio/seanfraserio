@@ -4,12 +4,14 @@ slug: adopting-zero-trust-network-access-solutions-ztna
 description: Discover the power of zero trust network access solutions (ZTNA)
   for enhanced security. Explore ZTNA technology in our blog post.
 date: 2024-05-07
+updated: 2026-01-07
 category: Cloud Security
 tags: []
+image: https://images.seanfraser.io/datasheet-zero-trust-network-access-ztna.jpeg
 featured: false
 draft: false
 ---
-![](https://cdn-images-1.medium.com/max/800/1*qrXgcoytId5rHg71W9fwRA.jpeg)
+![]()
 
 ZTNA Image
 
