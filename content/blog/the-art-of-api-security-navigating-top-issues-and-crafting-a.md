@@ -1,7 +1,9 @@
 ---
 title: "API Security in Practice: Defending Against the OWASP Top 10 with Code"
 slug: the-art-of-api-security-navigating-top-issues-and-crafting-a
-description: A practical guide to securing APIs against OWASP Top 10 vulnerabilities with working code examples for JWT validation, OAuth 2.0, rate limiting, and injection prevention.
+description: A practical guide to securing APIs against OWASP Top 10
+  vulnerabilities with working code examples for JWT validation, OAuth 2.0, rate
+  limiting, and injection prevention.
 date: 2024-04-30
 updated: 2026-01-07
 category: Application Security
@@ -14,7 +16,7 @@ tags:
   - Web Security
   - Authentication
   - Application Security
-image: https://images.seanfraser.io/datasheet-api-security.jpg
+image: https://images.seanfraser.io/API_Main.jpg
 featured: false
 draft: false
 ---
