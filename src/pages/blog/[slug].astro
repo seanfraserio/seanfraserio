@@ -329,4 +329,18 @@ const relatedPosts = allPosts
   .dark .prose b {
     @apply text-white;
   }
+
+  /* Fix code block line spacing */
+  .prose pre {
+    @apply leading-relaxed;
+  }
+
+  .prose pre code {
+    @apply leading-normal;
+    line-height: 1.5;
+  }
+
+  .prose code {
+    @apply leading-normal;
+  }
 </style>
