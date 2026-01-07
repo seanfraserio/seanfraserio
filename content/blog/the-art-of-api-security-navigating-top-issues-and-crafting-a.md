@@ -20,20 +20,19 @@ image: https://images.seanfraser.io/API_Main.jpg
 featured: false
 draft: false
 ---
-
 ## The API Attack Surface
 
 APIs now carry more than 70% of internet traffic. They're how your mobile app talks to your backend, how your microservices communicate, and how third parties integrate with your platform. They're also the target of 91% of web application attacks, according to Akamai's 2024 State of the Internet report.
 
 The numbers paint a concerning picture:
 
-| Metric | Value | Source |
-|--------|-------|--------|
-| API-related breaches in 2024 | 27% of all data breaches | IBM Cost of a Data Breach 2024 |
-| Average cost of API breach | $4.88M | IBM Cost of a Data Breach 2024 |
-| API attacks increase YoY | 109% | Salt Security State of API Security 2024 |
-| Organizations experiencing API incidents | 94% | Salt Security State of API Security 2024 |
-| APIs with critical vulnerabilities | 1 in 4 | Traceable AI API Security Report |
+| Metric                                   | Value                    | Source                                   |
+| ---------------------------------------- | ------------------------ | ---------------------------------------- |
+| API-related breaches in 2024             | 27% of all data breaches | IBM Cost of a Data Breach 2024           |
+| Average cost of API breach               | $4.88M                   | IBM Cost of a Data Breach 2024           |
+| API attacks increase YoY                 | 109%                     | Salt Security State of API Security 2024 |
+| Organizations experiencing API incidents | 94%                      | Salt Security State of API Security 2024 |
+| APIs with critical vulnerabilities       | 1 in 4                   | Traceable AI API Security Report         |
 
 The API security market has responded accordingly—valued at approximately $1.2 billion in 2024 and projected to reach $5.1 billion by 2030. But market growth doesn't protect your endpoints. Let's examine what actually does.
 
@@ -1015,51 +1014,46 @@ if (!hasPermission) {
 
 **Alerting thresholds:**
 
-| Event | Threshold | Action |
-|-------|-----------|--------|
-| Failed logins per IP | >10 in 5 min | Block IP temporarily |
-| 401/403 responses per user | >50 in 1 hour | Review account |
-| Requests to deprecated endpoints | Any | Alert + log |
-| Response time anomaly | >3x p99 baseline | Investigate |
-| New IP accessing admin APIs | Any | Alert for review |
+| Event                            | Threshold         | Action               |
+| -------------------------------- | ----------------- | -------------------- |
+| Failed logins per IP             | \>10 in 5 min     | Block IP temporarily |
+| 401/403 responses per user       | \>50 in 1 hour    | Review account       |
+| Requests to deprecated endpoints | Any               | Alert + log          |
+| Response time anomaly            | \>3x p99 baseline | Investigate          |
+| New IP accessing admin APIs      | Any               | Alert for review     |
 
 ## Measuring API Security
 
 Track these metrics to gauge your API security posture:
 
-| Metric | Target | Measurement Method |
-|--------|--------|-------------------|
-| OWASP Top 10 coverage | 100% | Annual pentest + automated scanning |
-| Authentication bypass attempts | 0 successful | SIEM alerting |
-| Time to patch critical API vulns | <24 hours | Vulnerability management |
-| API inventory accuracy | >95% | Monthly discovery scan vs. documented |
-| Rate limit effectiveness | <0.1% bypass | Traffic analysis |
-| JWT validation failures | Trend downward | Auth service metrics |
-| Deprecated API usage | 0% after sunset | Traffic monitoring |
+| Metric                           | Target          | Measurement Method                    |
+| -------------------------------- | --------------- | ------------------------------------- |
+| OWASP Top 10 coverage            | 100%            | Annual pentest + automated scanning   |
+| Authentication bypass attempts   | 0 successful    | SIEM alerting                         |
+| Time to patch critical API vulns | <24 hours       | Vulnerability management              |
+| API inventory accuracy           | \>95%           | Monthly discovery scan vs. documented |
+| Rate limit effectiveness         | <0.1% bypass    | Traffic analysis                      |
+| JWT validation failures          | Trend downward  | Auth service metrics                  |
+| Deprecated API usage             | 0% after sunset | Traffic monitoring                    |
 
 ## Getting Started
 
 If you're building a new API or hardening an existing one:
 
 1. **Inventory your APIs**: You can't secure what you don't know exists. Document all endpoints, including internal and legacy APIs.
-
 2. **Implement the basics first**: Authentication, authorization, rate limiting, and input validation address the majority of API attacks.
-
 3. **Add automated testing**: OWASP ZAP and similar tools catch common vulnerabilities in CI/CD before production deployment.
-
 4. **Use an OpenAPI specification**: Machine-readable API contracts enable automated validation, documentation, and security testing.
-
 5. **Monitor for anomalies**: Normal API traffic has patterns. Deviations—unusual volumes, new client IPs, off-hours access—warrant investigation.
-
 6. **Review the OWASP API Security Top 10**: Each item in the 2023 list represents real-world attack patterns. Verify your defenses against each.
 
 API security isn't a feature you add once—it's an ongoing practice that evolves with your API surface and the threat landscape. The code examples in this post provide a starting point, but effective API security requires continuous assessment, testing, and improvement.
 
----
+- - -
 
 ## Further Reading
 
-- [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0x00-header/)
-- [NIST SP 800-204: Security Strategies for Microservices-based Application Systems](https://csrc.nist.gov/publications/detail/sp/800-204/final)
-- [OAuth 2.0 Security Best Current Practice (RFC 9700)](https://datatracker.ietf.org/doc/html/rfc9700)
-- [Salt Security State of API Security Report](https://salt.security/api-security-trends)
+* [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0x00-header/)
+* [NIST SP 800-204: Security Strategies for Microservices-based Application Systems](https://csrc.nist.gov/publications/detail/sp/800-204/final)
+* [OAuth 2.0 Security Best Current Practice (RFC 9700)](https://datatracker.ietf.org/doc/html/rfc9700)
+* [Salt Security State of API Security Report](https://salt.security/api-security-trends)
