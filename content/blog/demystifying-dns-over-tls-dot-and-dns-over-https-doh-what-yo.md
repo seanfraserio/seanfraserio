@@ -1,295 +1,334 @@
 ---
-title: "Demystifying DNS over TLS (DoT) and DNS over HTTPS (DoH): What You Need
-  to Know"
+title: "DNS Encryption Explained: DoT, DoH, and DoQ for Network Engineers"
 slug: demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo
-description: In the changing world of internet security and privacy, two
-  acronyms have emerged as beacons of hope to protect our online interactions…
-date: 2024-01-16
-category: Threat Intelligence
-tags: []
+description: Your DNS queries are visible to everyone between you and your resolver. Learn how DoT, DoH, and DoQ encrypt DNS traffic—with practical configuration and troubleshooting guidance for 2025.
+date: 2025-01-07
+category: Network Security
+tags:
+  - DNS
+  - DoT
+  - DoH
+  - DoQ
+  - Encrypted DNS
+  - Network Security
+  - Privacy
 image: /images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-0.png
 featured: false
 draft: false
 ---
 
-In the changing world of internet security and privacy, two acronyms have emerged as beacons of hope to protect our online interactions: DoT (DNS over TLS) and DoH (DNS over HTTPS). Imagine a scenario where every online request you make is like sending a postcard through the mail, visible to anyone with prying eyes. That’s the reality of browsing the Internet without these protocols. However, as we navigate through this era, the importance of DNS queries has become more critical than ever before. This blog post serves as your guide to understanding DoT and DoH’s significance.
+## Why Your DNS Traffic Is a Privacy Problem
 
-You may ask yourself, “Why should I care?” while juggling the complexities of network architecture alongside the need for more internet access. Some argue that the traditional DNS system is not broken, so why bother fixing it? However, in a world where cyber threats are present at every corner, sticking to outdated methods is like leaving your door unlocked in a busy neighborhood.
+Every time you type a URL, your device sends a DNS query to translate that domain name into an IP address. By default, these queries travel as plaintext UDP packets, readable by anyone positioned to observe your network traffic—your ISP, corporate network administrators, public WiFi operators, or attackers performing man-in-the-middle interception.
 
-Dot (DoT) and DNS over HTTPS (DoH) are not upgrades. They are crucial tools that you should have in your cybersecurity toolkit. They work by encrypting your DNS queries, making them invisible to anyone trying to eavesdrop or launch attacks.
+This isn't theoretical. ISPs routinely log DNS queries for analytics and advertising purposes. Some inject ads into DNS responses. Others sell browsing data to third parties. In countries with internet censorship, DNS monitoring enables content blocking at scale.
 
-This article will first explain what DNS is and how it works. We will then demystify the latest DNS, DoT, and DoH extensions. We’ll explain how these protocols protect your DNS queries from preying eyes. Additionally, we will discuss their differences and explore their impact on network architecture and internet privacy. You’ll gain insights into implementing these protocols in your networks, overcoming common challenges, and making informed decisions about which protocol best aligns with your security objectives.
+Three encryption protocols address this exposure:
 
-Join us as we shed light on the role of DoT and DoH in shaping the future of internet security. Whether you’re already familiar with the basics or diving into DNS encryption, this blog post offers an exploration that will equip you with the knowledge to secure your internet interactions better.
+- **DNS over TLS (DoT)** — Wraps DNS in TLS encryption on port 853
+- **DNS over HTTPS (DoH)** — Embeds DNS within HTTPS traffic on port 443
+- **DNS over QUIC (DoQ)** — Uses QUIC's built-in encryption with lower latency
 
-### DNS
+Each protects query privacy but with different tradeoffs for detectability, performance, and network management.
 
-DNS stands for Domain Name Systems and serves as the Internet’s directory by mapping common names to IP addresses. As you may be aware, the Internet comprises millions of machines, each identified by a numerical IP address. This IP address allows others to connect with the respective machine and vice versa.
+## The Regulatory Push for Encrypted DNS
 
-However, humans struggle with remembering numbers. Instead, we excel at recalling names. This is where DNS servers come into play, eliminating the need for humans to memorize the IP addresses of their favorite websites. These servers act as a centralized hub, effortlessly mapping easily remembered names like Facebook[dot]com or Walmart[dot]com to dedicated IP addresses.
+On January 17, 2025, the US government issued an Executive Order requiring federal agencies to implement DoH or DoT within 180 days. This mandate signals that encrypted DNS is transitioning from privacy enhancement to compliance requirement.
 
-This mapping process, known as DNS resolution, occurs whenever you access a website on your browser. But what exactly transpires during the DNS resolution process?
+Enterprise organizations should anticipate similar requirements cascading into private sector frameworks. If you're building network architecture today, planning for encrypted DNS isn't optional—it's risk management.
 
-To grasp the complete picture, we must familiarize ourselves with the various DNS Servers involved in this intricate process.
+## Quick Reference: DoT vs DoH vs DoQ
 
-#### **DNS Server Types**
+| Aspect | DoT | DoH | DoQ |
+|--------|-----|-----|-----|
+| **Port** | 853 (TCP) | 443 (TCP) | 853 (UDP) |
+| **Encryption** | TLS 1.2/1.3 | TLS via HTTPS | TLS 1.3 via QUIC |
+| **Traffic Visibility** | Identifiable as DNS | Blends with web traffic | Identifiable as QUIC |
+| **Blocking Ease** | Easy (distinct port) | Difficult (shared with HTTPS) | Moderate |
+| **Latency** | Higher (TCP+TLS handshake) | Moderate | Lowest (0-RTT possible) |
+| **Browser Support** | Limited | Widespread | Emerging |
+| **Enterprise Preference** | Higher (monitorable) | Lower (harder to inspect) | Emerging |
+| **RFC Standard** | RFC 7858 (2016) | RFC 8484 (2018) | RFC 9250 (2022) |
 
-There are four types of DNS servers:
+## How DNS Resolution Works (Brief Refresher)
 
-- DNS Recursor
-- Root Nameserver
-- TLD Nameserver
-- Authoritative Nameserver
+Before examining encryption, here's the lookup process your queries traverse:
 
-The Domain Name System works in an **inverted tree structure**. The root name server is at the top of the tree, followed by TLDs(Top-level Domains)and **authoritative name servers**.
+```
+Browser → OS Cache → Recursive Resolver → Root Server → TLD Server → Authoritative Server → IP Address
+```
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-0.png)
-DNS Hierarchy
-### 1 — DNS Recursor
+**Four server types participate:**
 
-The DNS recursor serves as a crucial server that receives queries from client machines through applications like web browsers, meanwhile the entire process remains hidden and mysterious.
+1. **Recursive Resolver**: Your ISP's DNS server (or a public resolver like 1.1.1.1). It receives your query and does the work of finding the answer.
 
-Similarly, the DNS recursor traverses various DNS servers, diligently seeking the corresponding IP address. It may even make additional requests to other DNS servers to fulfill the DNS query if necessary. This intricate process ensures the client’s request is met with accurate and timely results.
+2. **Root Nameserver**: Thirteen IP addresses (operated by ICANN, Verisign, NASA, and others) that direct queries to the appropriate TLD server.
 
-The DNS recursor plays a vital role in the seamless functioning of the Internet. Efficiently locating the necessary IP address enables smooth communication between client machines and the desired online resources. Its tireless efforts behind the scenes ensure users can effortlessly access websites, applications, and other online services.
+3. **TLD Nameserver**: Handles top-level domains (.com, .org, .net, country codes). Returns the authoritative nameserver for the specific domain.
 
-In essence, the DNS recursor acts as an indispensable intermediary, bridging the gap between client machines and the vast network of DNS servers. Its ability to navigate this intricate web of information makes it an invaluable asset in terms of internet connectivity.
+4. **Authoritative Nameserver**: Holds the actual DNS records for a domain. Returns the final A/AAAA record with the IP address.
 
-See below an example of the sequence of events:
+Caching occurs at multiple levels (browser, OS, resolver) to avoid repeating this process for every query. TTL values on DNS records control cache duration.
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-1.png)
-DNS Server Request
-### 2 — Root Nameserver
+> **Key Point**: Encryption protects the connection between your device and the recursive resolver. The resolver's queries to root/TLD/authoritative servers may still be unencrypted unless you run your own resolver.
 
-The root name server is crucial in translating host names into their corresponding IP addresses. It serves as the initial point of contact for successfully resolving domain names.
+## DNS over TLS (DoT): How It Works
 
-When referring to a domain name, the root is denoted by the discreet trailing period (.) that discreetly concludes the name. It is important to note that manually typing this additional period is not a prerequisite, as modern browsers automatically append it for convenience.
+DoT wraps standard DNS queries inside a TLS tunnel on TCP port 853.
 
-From a higher level, the Domain Name System (DNS) administration is structured hierarchically. This hierarchical structure is achieved by implementing distinct managed areas or zones. At the apex of this hierarchy lies the root zone, which serves as the ultimate authority in the DNS infrastructure.
+**Connection Process:**
 
-By employing this hierarchical framework, the DNS system ensures efficient management and resolution of domain names.
+1. Client initiates TCP connection to resolver on port 853
+2. TLS handshake authenticates the resolver (certificate validation)
+3. DNS query transmitted over encrypted channel
+4. Resolver returns encrypted response
+5. Connection may persist for subsequent queries (connection reuse)
 
-There are 13 DNS root servers in the DNS system, as shown below.
+**Advantages:**
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-2.png)
-DNS Root Servers
-However, in today’s technological landscape, each of the 13 IP addresses is supported by multiple servers, utilizing Anycast routing to distribute requests based on load and proximity efficiently.
+- Clear separation of DNS traffic from other protocols
+- Network administrators can monitor that encrypted DNS is occurring (even if they can't read queries)
+- Straightforward to implement resolver-side
 
-The operation of these servers lies with various entities, including The Internet Corporation for Assigned Names and Numbers (ICANN), which manages servers for one of the 13 IP addresses. Other crucial organizations, such as NASA, the University of Maryland, and Verisign, also operate some servers.
+**Disadvantages:**
 
-It is essential to note that, given that root nameservers occupy the highest level of the DNS hierarchy, recursive resolvers cannot directly find them during a DNS lookup.
+- Port 853 is frequently blocked on corporate networks and public WiFi
+- Distinct port makes DoT traffic easy to identify and throttle
+- TCP overhead adds latency compared to traditional UDP DNS
 
-To address this challenge, every DNS resolver incorporates a pre-established list of the 13 root server IP addresses within its software. Consequently, when a DNS lookup is initiated, the recursive resolver communicates with one of these 13 IP addresses.
+**Testing DoT with kdig:**
 
-### 3 — TLD Nameserver
+```bash
+# Query using DNS over TLS
+kdig @1.1.1.1 +tls example.com
 
-The subsequent quest for an IP address involves the DNS resolution process, which leads us to the TLD nameserver.
+# Verify TLS certificate details
+kdig @1.1.1.1 +tls +tls-ca example.com
+```
 
-The TLD server, an abbreviation for Top-Level Domain server, can be likened to a specialized section within a library that houses books of a specific genre.
+## DNS over HTTPS (DoH): How It Works
 
-In the realm of DNS, the TLD server is responsible for hosting the final segment of the hostname. In simpler terms, it handles the “com” in google[dot]com.
+DoH embeds DNS queries within standard HTTPS POST or GET requests to a resolver endpoint (typically `/dns-query`).
 
-Essentially, a TLD nameserver maintains information pertaining to all domain names that share a common domain extension, such as .com, .net, or any other.
+**Connection Process:**
 
-Administration and operation of TLD nameservers falls under the purview of the Internet Assigned Numbers Authority (IANA), a division of ICANN. The IANA further categorizes TLD servers into two primary groups:
+1. Client opens HTTPS connection to resolver on port 443
+2. TLS handshake (same as any HTTPS website)
+3. DNS query sent as HTTP request body (wire format or JSON)
+4. Resolver returns DNS response in HTTP response
+5. Connection reused for subsequent queries
 
-1. Generic top-level domains, including .com, .org, .net, etc.
- 2. Country code top-level domains, encompassing .us, .in, .uk, and others.
+**Advantages:**
 
-### 4 — Authoritative Nameservers
+- Virtually impossible to block without breaking all HTTPS traffic
+- Works through corporate proxies and firewalls that allow HTTPS
+- Built into major browsers (Chrome, Firefox, Edge, Safari)
+- Can leverage existing HTTPS infrastructure (CDNs, load balancers)
 
-The involvement of the Authoritative Nameservers completes the DNS resolution process. After receiving a response from a TLD nameserver, the Recursive Resolver is directed to an authoritative nameserver. This authoritative nameserver is responsible for holding domain-specific information, like that of google[dot]com, and serving it.
+**Disadvantages:**
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-3.png)
-Authoritative DNS Server
-The authoritative nameserver is responsible for storing the server's IP address in the DNS A Record or CNAME record, if applicable.
+- Harder for network administrators to monitor or filter
+- Bypasses enterprise DNS policies if browser uses external resolver
+- Debugging requires HTTPS traffic inspection tooling
 
-In simpler terms, when the authoritative nameserver has access to the record, it will provide the IP address to the DNS recursive resolver.
+**Testing DoH with curl:**
 
-There are **three (3)** types of DNS queries:
+```bash
+# Query using DNS over HTTPS (wire format)
+curl -H "accept: application/dns-message" \
+     "https://1.1.1.1/dns-query?dns=AAABAAABAAAAAAAAB2V4YW1wbGUDY29tAAABAAE"
 
-1. **Recursive Query**:
- In this type of query, the DNS client expects the DNS server, typically a DNS recursive resolver, to find the IP address and complete the task. If the server cannot locate any record, it will return an error message. The client is not concerned with the number of queries the server makes to obtain the result, whether positive or negative.
+# Using cloudflared for easier testing
+cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query
+dig @127.0.0.1 -p 5053 example.com
+```
 
-2. **Iterative Query:**
- In the iterative query approach, the DNS client is satisfied if the DNS server provides the best possible answer. If the DNS server receiving the query does not have a match for the domain name, it will refer the client to a DNS server authorized for a lower level of the namespace. The DNS client then needs to make another query to the referral address, and the process continues with additional DNS servers within the query chain.
+## DNS over QUIC (DoQ): The Emerging Option
 
-3. **Non-recursive Query:**
- The third type of query occurs when a DNS client requests a record from a DNS server that it has access to. This can happen for two reasons: the server is the authoritative server, or the DNS record information exists within its cache.
+DoQ, standardized in RFC 9250 (2022), uses the QUIC transport protocol—the same foundation as HTTP/3. QUIC builds TLS 1.3 encryption directly into the transport layer.
 
-By understanding these different types of DNS queries, we can better comprehend how the DNS system functions and how information is retrieved.
+**Advantages:**
 
-### Steps in a DNS Lookup
+- Lowest latency (0-RTT connection establishment possible)
+- Better handling of packet loss than TCP-based protocols
+- Connection migration survives network changes (useful for mobile)
+- Multiplexing without head-of-line blocking
 
-Now, let us delve into the core of this post and gain a comprehensive understanding of the DNS lookup process.
+**Disadvantages:**
 
-What occurs from a DNS resolution standpoint when you enter www[dot]google[dot]com into your browser?
+- Limited resolver support (AdGuard DNS, NextDNS, some others)
+- No browser integration yet
+- Requires client software that supports DoQ
+- Uses UDP, which some networks restrict
 
-Below, you will find a visual representation of the entire process.
+**Current DoQ Resolvers:**
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-4.png)
-DNS Resolution Process
-Let’s examine each step in greater detail:
+- AdGuard DNS: `quic://dns.adguard.com`
+- NextDNS: `quic://dns.nextdns.io`
 
-**Step 1**
+## Browser and OS Support (2025)
 
-- The browser sends a DNS query to the operating system.
- — The operating system checks its cache for the IP address.
- — If the IP address is found, everything is in order. If not, the operating system sends a query to the DNS resolver.
- — This query is recursive, meaning the resolver must provide either an IP address or an error.
- — In most cases, the user’s Internet Service Provider provides the DNS resolver.
+### Browser DoH Support
 
-**Step 2**
+| Browser | DoH Status | Default Resolver |
+|---------|------------|------------------|
+| Chrome 83+ | Enabled by default (US, UK, Canada, Germany, France, Japan) | System resolver if DoH-capable |
+| Firefox 83+ | Enabled by default (US) | Cloudflare |
+| Safari | Supported (macOS 11.3+, iOS 14.5+) | Configuration profile required |
+| Edge 83+ | Supported (not default) | Manual configuration |
 
-- The DNS resolver begins by querying one of the root DNS servers for the IP of [www.google.com.](http://www.google.com.) These root servers consist of a cluster of servers and are associated with 13 IP addresses.
- — This query is not recursive but somewhat iterative. The response must contain an address, even if it is not an exact match.
- — The command “dig +trace www.google.com" visually represents this query trace.
+### Operating System Configuration
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-5.png)
+**Windows 11:**
 
-**Step 3**
+```
+Settings → Network & Internet → Wi-Fi/Ethernet → DNS Server Assignment → Edit
+Select "Encrypted only (DNS over HTTPS)" or "Encrypted preferred"
+```
 
-- The root servers store the locations of top-level domains, such as .com and .net.
- — Since the root servers do not possess the direct IP information for [www.google.com,](http://www.google.com,) they provide the location of the .com servers.
+**macOS (Monterey+):**
 
-**Step 4**
+Requires configuration profile (.mobileconfig) to enable DoH/DoT system-wide.
 
-- Armed with this information, the resolver queries one of the .com TLD servers for the location of google.com.
- — Like the root servers, each TLD has 4–13 clustered name servers located in various places. As mentioned earlier, two types of TLDs are country-specific and generic.
- — The execution of “dig +trace www.google.com" provides a glimpse of what Step 4 entails.
+**Android 9+:**
 
-![](/images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-6.png)
+```
+Settings → Network & Internet → Private DNS
+Enter hostname: dns.google (or other DoT resolver)
+```
 
-**Step 5:**
+**iOS 14+:**
 
-- The query from the DNS resolver to the TLD is also iterative.
- — The TLD server responds with the IP address of the domain’s nameserver.
- — For instance, although the TLD server may not possess the IP address for google.com, it knows the location of Google’s name servers
+Requires configuration profile or apps like 1.1.1.1 WARP, DNSCloak, or NextDNS.
 
-**Step 6:**
+## Enterprise Implementation Considerations
 
-Finally, the DNS resolver queries one of Google’s nameservers to obtain the IP address of [www.google.com.](http://www.google.com.) Refer to the section below for the output of the dig command.
+### When to Choose DoT
 
-google.com. 172800 IN NS ns2.google.com.
+DoT works better for enterprise environments where:
 
-google.com. 172800 IN NS ns1.google.com.
+- Network administrators need visibility into DNS protocol usage
+- Security monitoring requires distinguishing DNS from web traffic
+- Compliance frameworks require auditable DNS logging
+- Internal DoT resolvers can be deployed and managed
 
-google.com. 172800 IN NS ns3.google.com.
+### When to Choose DoH
 
-google.com. 172800 IN NS ns4.google.com.
+DoH suits environments where:
 
-**Step 7:**
+- Users connect from networks you don't control (remote workers, public WiFi)
+- Firewall/proxy restrictions would block DoT
+- Browser-level deployment is preferred over system-wide configuration
+- Privacy from network-level observers is prioritized
 
-This time, the queried name server possesses the IP address as it serves as the authoritative nameserver for that particular domain. This query can be categorized as a non-recursive query. Consequently, it responds by providing an A or AAAA address record.
+### Active Directory Warning
 
-**Step 8:**
+> **Critical**: Windows Active Directory domain services rely heavily on DNS and don't support encrypted DNS for domain queries. Domain-joined machines should NOT enable "Require DoH" for their domain DNS servers. Consider IPsec-based connection security for internal DNS traffic instead.
 
-At this stage, the DNS resolver completes the recursion process and can now furnish the end user’s operating system with an IP address. Please refer to the output below from the dig command.
+### Split-Horizon DNS Challenges
 
-[www.google.com.](http://www.google.com.) 300 IN A 142.250.194.132
+If your organization uses split-horizon DNS (different responses for internal vs external queries), DoH can break internal resolution when browsers bypass your corporate resolver. Solutions include:
 
-**Steps 9 & 10:**
+- Deploying internal DoH resolvers
+- Using browser policies to disable DoH or specify internal resolver
+- Implementing DNS filtering that intercepts DoH traffic
 
-Equipped with the obtained IP address, the operating system relays it to the browser, which then initiates a TCP connection to load the page using HTTP.
+## Recommended Resolvers
 
-### DNS Caching
+| Provider | DoT | DoH | DoQ | Privacy Policy |
+|----------|-----|-----|-----|----------------|
+| Cloudflare (1.1.1.1) | `1.1.1.1:853` | `https://1.1.1.1/dns-query` | No | No logging of source IP |
+| Google (8.8.8.8) | `8.8.8.8:853` | `https://dns.google/dns-query` | No | Logs for 24-48 hours |
+| Quad9 (9.9.9.9) | `9.9.9.9:853` | `https://dns.quad9.net/dns-query` | No | No logging, malware blocking |
+| NextDNS | Custom | Custom | Yes | Configurable logging |
+| AdGuard | `94.140.14.14:853` | `https://dns.adguard.com/dns-query` | Yes | No logging, ad blocking |
 
-Before concluding our discussion, it is crucial to comprehend the role of caching in DNS.
+## Troubleshooting Common Issues
 
-DNS caching involves storing data closer to the client, enabling faster resolution of DNS queries and avoiding unnecessary traversal through the chain.
+### DoT Connection Failures
 
-Two caching locations come into play before the DNS query reaches the DNS resolver.
+**Symptom**: DNS resolution fails when DoT is enabled
 
-1 — **Browser DNS Caching**
- Modern web browsers are designed to cache DNS records for a specific duration.
+**Checks:**
 
-When a request is made for a DNS record, the browser cache is the first location checked for the requested record.
+```bash
+# Verify port 853 is reachable
+nc -zv 1.1.1.1 853
 
-2 — **OS Level DNS Caching**
- This is the second location where a DNS record can be cached.
+# Test TLS handshake
+openssl s_client -connect 1.1.1.1:853
 
-When a DNS query reaches the operating system, the “stub resolver” checks its cache to determine if it already possesses the record.
+# Check for certificate errors in system logs
+```
 
-If the record is not found, the operating system sends a DNS query (with a recursive flag, as mentioned earlier) to a DNS recursive resolver within the Internet Service Provider.
+**Common causes:**
 
-DNS resolution can be expedited by implementing caching mechanisms at both the browser and operating system levels, resulting in improved overall performance and user experience.
+- Port 853 blocked by firewall/ISP
+- Certificate validation failure (clock skew, missing root CA)
+- Resolver doesn't support DoT
 
-The DNS resolver also maintains its cache. Suppose the resolver does not possess the domain's A records but retains the authoritative nameserver's NS records. In that case, it can directly query those name servers and bypass the root and TLD servers.
+### DoH Not Working
 
-Furthermore, caching mechanisms enhance DNS resolution speed and reduce the load on DNS servers. When a DNS record is cached, subsequent queries for the same record can be answered directly from the cache, eliminating the need for additional network requests. This not only saves time but also reduces the amount of network traffic, leading to a more efficient and reliable browsing experience. Additionally, caching mechanisms can mitigate the impact of DNS server outages or slowdowns by serving cached records even when the DNS server is unavailable. Implementing caching mechanisms at multiple levels is crucial for optimizing DNS resolution and ensuring a seamless user experience.
+**Symptom**: Browser still using plaintext DNS
 
-### DOT and DOH
+**Checks:**
 
-As we mentioned in our opening, DNS stands for Domain Name Systems and serves as the Internet’s directory by mapping common names to IP addresses. This mapping process, known as DNS resolution, occurs whenever you access a website on your browser.
+- Verify DoH is enabled in browser settings
+- Check if enterprise policy disables DoH
+- Confirm resolver supports DoH at expected endpoint
 
-However, by default, DNS queries and responses are sent as text, making them readable by anyone monitoring your network traffic, such as your ISP, government agencies, or malicious individuals. They can tamper with DNS traffic, redirect you to websites, or block access to specific content.
+**Firefox diagnostic:**
 
-This threatens your security and privacy, especially when using Wi-Fi or living in a country with internet censorship. Fortunately, two standards can help encrypt your DNS traffic and prevent snooping or manipulation: DOT (DNS over TLS) and DOH (DNS over HTTPS).
+```
+about:networking#dns
+```
 
-DOT (DNS, over TLS) and DOH (DNS over HTTPS) are protocols that aim to enhance the security and privacy of DNS communication by implementing encryption and authentication. They ensure that only you and your DNS resolver have access to the information about the websites you visit and that you receive IP addresses. Additionally, these protocols make it more challenging for anyone to block or filter your DNS requests since they resemble HTTPS traffic.
+Look for "TRR" (Trusted Recursive Resolver) status.
 
-This article section will dive into the workings of DOT and DOH, exploring their creation, practical applications, and use cases. We will also. Contrast these two protocols while discussing their advantages and disadvantages. By the end of this report, you will better understand how DOT and DOH can enhance both the security and privacy of your DNS activities and how they can be integrated into your network engineering projects.
+**Chrome diagnostic:**
 
-### Understanding How DOT and DOH Work
+```
+chrome://net-internals/#dns
+```
 
-DOT and DOH employ encryption techniques and authentication mechanisms to safeguard DNS communication. Their primary purpose is to prevent the reading or modification of DNS queries and responses while ensuring that users remain connected to their intended websites. However, each protocol implements these features in different ways.
+### Performance Degradation
 
-**DOT**
+**Symptom**: Pages load slower with encrypted DNS
 
-TLS serves as the protocol utilized by HTTPS websites to ensure communication. DOT adds a layer of TLS encryption on top of the UDP protocol, which transmits DNS queries and responses. DOT also incorporates TCP to address any issues with blocked or unreliable UDP.
+**Causes:**
 
-To use DOT, users must configure their device or application to connect with a DNS resolver that supports this protocol. Additionally, users need to place trust in the resolver certificate, which is instrumental in authenticating the resolver and preventing any man-in-the-middle attacks. This certificate can be verified using a certificate authority (CA) or key pinning (PKP) mechanism.
+- Resolver geographically distant
+- Connection reuse not working (new TLS handshake per query)
+- Resolver overloaded
 
-When a user sends a DNS query through DOT, their device or application initiates a TLS handshake with the resolver. Through this process, a secure connection is made. The identity of the resolver is verified. Subsequently, the device or application transmits the DNS query over this TLS connection. The resolver then. Processes the query by performing a DNS lookup before sending the corresponding DNS response through the same TLS connection. Finally, upon receiving the response, the device or application terminates its TLS connection.
+**Solution**: Try alternative resolvers; use dig with timing to compare:
 
-**DOH**
+```bash
+dig @1.1.1.1 example.com +stats | grep "Query time"
+```
 
-DOH leverages HTTPS as its foundation for encrypting DNS traffic between users and DNS resolvers. HTTPS itself combines elements from both HTTP and TLS protocols.
+## Implementation Priority
 
-HTTP serves as the communication protocol between web browsers and web servers. DOH, on the other hand, incorporates DNS queries and responses into HTTPS messages, giving them the appearance of web traffic.
+For organizations beginning encrypted DNS adoption:
 
-To utilize DOH, users must configure their devices or applications to use a DNS resolver that supports DOH. Additionally, users must trust the resolver certificate for authentication purposes. To prevent any man-in-the-middle attacks. The resolver certificate can be verified through a certificate authority (CA) or a pinning (PKP) mechanism.
+1. **Audit current DNS infrastructure**: Identify all resolvers, understand query patterns, document split-horizon requirements
 
-When a user employs DOH to send a DNS query, their device or application initiates an HTTPS request to the resolver. This request includes the DNS query in JSON or wire format. The resolver then receives this request, performs the DNS lookup, and returns the DNS response in the same format as the original query. This response is wrapped within an HTTPS response message. Finally, upon receiving this response message, the device or application extracts and retrieves the DNS data.
+2. **Start with DoT for managed devices**: Easier to monitor, clearer separation from web traffic
 
-DOT and DOH have advantages and disadvantages, depending on one’s perspective and specific use case.
+3. **Deploy internal DoH resolver**: Gives browser DoH benefits while maintaining organizational control
 
-However, there are a few points to consider;
+4. **Exclude domain-joined machines**: Keep AD DNS queries on traditional DNS with IPsec protection
 
-DOT is often favored regarding network security because it enables network administrators to monitor and block DNS queries effectively. This proactive approach helps identify and prevent traffic.
+5. **Monitor for bypass attempts**: Users may configure personal DoH resolvers; decide whether to allow or block
 
-From a privacy standpoint, DOH is preferable as DNS queries are concealed within the stream of HTTPS traffic. This makes it challenging for ISPs, governments, or other third parties to eavesdrop on or restrict DNS requests.
+6. **Plan for DoQ**: As support matures, QUIC's latency benefits will make it attractive for performance-sensitive applications
 
-DOT utilizes a port (**853**) for DNS traffic, making it more straightforward to differentiate from types of traffic. However, this also means that DOT can be subject to blocking or throttling measures implemented by firewalls or network policies.
+---
 
-However, DOH leverages the port (**443**) as HTTPS traffic, making it more compatible with existing network infrastructure and less likely to be impeded. However, this also implies that DOH could be more challenging for network administrators to detect and manage effectively.
+## Further Reading
 
-Regarding performance factors DOT establishes a TLS connection for each DNS query, which introduces some latency and additional overhead in the process. In contrast, DOH can utilize existing HTTPS connections, reducing latency and overhead.
-
-Lastly, implementing DOT requires users to configure their devices or applications with a DNS resolver that supports DOT functionality.
-
-Like a web browser without user configuration, the application can implement DOH.
-
-As you can observe, DOT and DOH have trade-offs and implications for network performance, security, and privacy. You may prefer one over the other depending on your objectives and requirements. Even use both concurrently. The following section will explore some applications and instances where DOT and DOH can be utilized.
-
-Practical applications of DOT and DOH
-
-DOT and DOH both have applicable use cases for end users and enterprises. Uses depending on the situation and user goals. Here are some examples of how DOT and DOH can be employed in scenarios;
-
-**Web browsing**: One of the prevalent uses of DOT and DOH is to enhance the security and privacy of web browsing. Utilizing either DOT or DOH web browsers can prevent ISPs, governments, or other third parties from spying on or censoring the websites users visit. Some web browsers like Microsoft Edge, Firefox, and Chrome have already incorporated DOH as an option or default feature for their users.
-
-However, challenges and debates arise from this, including concerns about the impact on network performance by selecting the DOH resolver and bypassing DNS policies. This caused an issue for Apple when they rolled out Apple Private Relay because it broke a lot of security services.
-
-**VPN**: Another way DOT and DOH can be applicable is by complementing VPN services. VPNs are commonly used to establish a private connection between users and remote servers, shielding their IP addresses and encrypting their traffic. However, it’s important to note that VPNs don’t necessarily encrypt DNS traffic, which means that a user’s browsing activity could still be exposed to their ISP or the VPN provider. By implementing DOT or DOH, users can ensure that their DNS traffic is also encrypted and directed towards a trusted resolver, providing a layer of security.
-
-**IoT**: A third application for DOT and DOH lies in securing devices. These devices are frequently connected to the Internet. Rely on DNS for communication with devices or servers. Unfortunately, IoT devices are vulnerable to DNS attacks such as hijacking, spoofing, or denial of service attacks. IoT devices can safeguard against actors attempting to tamper with or disrupt their DNS communication channels by utilizing DOT or DOH protocols. This helps guarantee that they remain connected to their intended destinations.
-
-### Final Thoughts
-
-The standards of DOT and DOH offer advantages when it comes to enhancing DNS security and privacy. They work by encrypting and authenticating DNS traffic, making it difficult for anyone to intercept or manipulate. Moreover, these standards also make it challenging for others to block or filter your DNS requests since they resemble HTTPS traffic.
-
-However, it’s important to note that DOT and DOH come with considerations in terms of network performance, security, and privacy implications. Depending on your goals and requirements, you may find one option more suitable than the other or even opt for a combination of both. Network administrators often prefer DOT as it allows them to monitor and restrict DNS queries. On the other hand, privacy advocates tend to lean towards DOH as it conceals DNS queries within the flow of HTTPS traffic.
-
-DOT and DOH find applications in scenarios such as web browsing, VPN usage, and IoT devices. By implementing either DOT or DOH protocols, you can safeguard your activities from prying eyes like ISPs, governments, or any other third parties attempting to spy on your visited websites or enforce censorship measures. Additionally, using these protocols alongside VPN services adds a layer of protection to your DNS communications while securing devices against potential tampering or disruption by malicious actors.
-
-This article explains the workings of DNS, DOT, and DOH, their purpose for creation, and their practical applications and use cases. Additionally, we have examined the similarities and differences between the protocols while discussing the benefits they offer and their drawbacks. We aim to ensure that this report enables you to understand better how DOT and DOH can strengthen your DNS security and privacy and how you can effectively incorporate them into your network engineering projects.
+- [RFC 7858: DNS over TLS](https://datatracker.ietf.org/doc/html/rfc7858)
+- [RFC 8484: DNS over HTTPS](https://datatracker.ietf.org/doc/html/rfc8484)
+- [RFC 9250: DNS over QUIC](https://datatracker.ietf.org/doc/html/rfc9250)
+- [Cloudflare: DNS over TLS vs DNS over HTTPS](https://www.cloudflare.com/learning/dns/dns-over-tls/)
+- [Microsoft: DoH Client Support on Windows Server 2022](https://learn.microsoft.com/en-us/windows-server/networking/dns/doh-client-support)
