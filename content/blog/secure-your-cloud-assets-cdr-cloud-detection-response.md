@@ -1,7 +1,10 @@
 ---
-title: "Cloud Detection and Response: Catching Threats That Cloud Security Posture Management Misses"
+title: "Cloud Detection and Response: Catching Threats That Cloud Security
+  Posture Management Misses"
 slug: secure-your-cloud-assets-cdr-cloud-detection-response
-description: CSPM finds misconfigurations. CDR finds attackers. Learn how Cloud Detection and Response works, how it fits into CNAPP architectures, and how to build detection capabilities for AWS, Azure, and GCP.
+description: CSPM finds misconfigurations. CDR finds attackers. Learn how Cloud
+  Detection and Response works, how it fits into CNAPP architectures, and how to
+  build detection capabilities for AWS, Azure, and GCP.
 date: 2024-06-22
 updated: 2026-01-07
 category: Cloud Security
@@ -18,7 +21,6 @@ image: https://images.seanfraser.io/CDR.jpg
 featured: false
 draft: false
 ---
-
 ## The Gap Between Configuration and Compromise
 
 Your Cloud Security Posture Management tool shows green across the board. S3 buckets aren't public. IAM policies follow least privilege. Security groups restrict access appropriately. Everything is configured correctly.
@@ -443,7 +445,146 @@ Most mature security programs deploy both: agentless for broad coverage and rapi
 
 ## Response Automation
 
-Detection without response is just expensive logging. CDR platforms integrate with cloud provider APIs to enable automated containment and remediation. Common response actions include disabling compromised IAM users, isolating EC2 instances by replacing security groups, and revoking active role sessions.
+Detection without response is just expensive logging. CDR platforms integrate with cloud provider APIs to enable automated containment and remediation.
+
+### AWS Response Actions
+
+```python
+# automated_response.py
+import boto3
+from datetime import datetime
+
+class CloudResponseActions:
+    def __init__(self):
+        self.iam = boto3.client('iam')
+        self.ec2 = boto3.client('ec2')
+        self.lambda_client = boto3.client('lambda')
+
+    def disable_iam_user(self, username: str, reason: str):
+        """Disable compromised IAM user by removing access."""
+        # Delete access keys
+        keys = self.iam.list_access_keys(UserName=username)
+        for key in keys['AccessKeyMetadata']:
+            self.iam.delete_access_key(
+                UserName=username,
+                AccessKeyId=key['AccessKeyId']
+            )
+
+        # Delete login profile (console access)
+        try:
+            self.iam.delete_login_profile(UserName=username)
+        except self.iam.exceptions.NoSuchEntityException:
+            pass
+
+        # Attach deny-all policy
+        deny_policy = {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Effect": "Deny",
+                "Action": "*",
+                "Resource": "*"
+            }]
+        }
+        self.iam.put_user_policy(
+            UserName=username,
+            PolicyName='SecurityIncident-DenyAll',
+            PolicyDocument=json.dumps(deny_policy)
+        )
+
+        return {
+            'action': 'disable_user',
+            'username': username,
+            'reason': reason,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+
+    def isolate_ec2_instance(self, instance_id: str, reason: str):
+        """Isolate compromised EC2 by replacing security group."""
+        # Create isolation security group if needed
+        vpc_id = self.ec2.describe_instances(
+            InstanceIds=[instance_id]
+        )['Reservations'][0]['Instances'][0]['VpcId']
+
+        isolation_sg = self._get_or_create_isolation_sg(vpc_id)
+
+        # Replace security groups
+        self.ec2.modify_instance_attribute(
+            InstanceId=instance_id,
+            Groups=[isolation_sg]
+        )
+
+        # Tag instance
+        self.ec2.create_tags(
+            Resources=[instance_id],
+            Tags=[
+                {'Key': 'SecurityStatus', 'Value': 'Isolated'},
+                {'Key': 'IsolationReason', 'Value': reason},
+                {'Key': 'IsolationTime', 'Value': datetime.utcnow().isoformat()}
+            ]
+        )
+
+        return {
+            'action': 'isolate_instance',
+            'instance_id': instance_id,
+            'isolation_sg': isolation_sg,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+
+    def revoke_iam_role_sessions(self, role_name: str):
+        """Revoke all active sessions for a compromised role."""
+        self.iam.put_role_policy(
+            RoleName=role_name,
+            PolicyName='RevokeOlderSessions',
+            PolicyDocument=json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Deny",
+                    "Action": "*",
+                    "Resource": "*",
+                    "Condition": {
+                        "DateLessThan": {
+                            "aws:TokenIssueTime": datetime.utcnow().isoformat()
+                        }
+                    }
+                }]
+            })
+        )
+
+    def _get_or_create_isolation_sg(self, vpc_id: str) -> str:
+        """Get or create security group that blocks all traffic."""
+        sg_name = 'security-incident-isolation'
+
+        try:
+            response = self.ec2.describe_security_groups(
+                Filters=[
+                    {'Name': 'vpc-id', 'Values': [vpc_id]},
+                    {'Name': 'group-name', 'Values': [sg_name]}
+                ]
+            )
+            if response['SecurityGroups']:
+                return response['SecurityGroups'][0]['GroupId']
+        except:
+            pass
+
+        # Create isolation security group (no ingress or egress rules)
+        response = self.ec2.create_security_group(
+            GroupName=sg_name,
+            Description='Isolation SG for security incidents - blocks all traffic',
+            VpcId=vpc_id
+        )
+        sg_id = response['GroupId']
+
+        # Remove default egress rule
+        self.ec2.revoke_security_group_egress(
+            GroupId=sg_id,
+            IpPermissions=[{
+                'IpProtocol': '-1',
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }]
+        )
+
+        return sg_id
+```
 
 ### SOAR Integration
 
@@ -534,12 +675,12 @@ Organizations implementing CDR should follow a phased approach:
 
 The organizations that get value from CDR treat it as an ongoing program, not a product deployment. Detection rules require continuous tuning. New attack techniques require new detections. Response playbooks need regular testing. The technology is only as effective as the processes and people operating it.
 
----
+- - -
 
 ## Further Reading
 
-- [MITRE ATT&CK Cloud Matrix](https://attack.mitre.org/matrices/enterprise/cloud/)
-- [AWS GuardDuty Documentation](https://docs.aws.amazon.com/guardduty/)
-- [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/)
-- [GCP Security Command Center](https://cloud.google.com/security-command-center/docs)
-- [CISA Cloud Security Technical Reference Architecture](https://www.cisa.gov/cloud-security-technical-reference-architecture)
+* [MITRE ATT&CK Cloud Matrix](https://attack.mitre.org/matrices/enterprise/cloud/)
+* [AWS GuardDuty Documentation](https://docs.aws.amazon.com/guardduty/)
+* [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/)
+* [GCP Security Command Center](https://cloud.google.com/security-command-center/docs)
+* [CISA Cloud Security Technical Reference Architecture](https://www.cisa.gov/cloud-security-technical-reference-architecture)
