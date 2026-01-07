@@ -55,7 +55,17 @@ However, this visibility cuts both ways. Because DoT uses a distinctive port, it
 
 The TCP requirement also introduces latency compared to traditional DNS over UDP. Every new connection requires a three-way TCP handshake followed by a TLS handshake before any DNS data can flow. Connection reuse mitigates this for subsequent queries, but the initial connection establishment is noticeably slower than a single UDP packet. In practice, users rarely notice this delay because it only affects the first query in a session, but it's a consideration for latency-sensitive applications.
 
-If you want to test DoT connectivity from the command line, the kdig utility (part of the Knot DNS package) provides straightforward syntax. Running `kdig @1.1.1.1 +tls example.com` sends an encrypted query to Cloudflare's resolver. You can verify the TLS certificate details with `kdig @1.1.1.1 +tls +tls-ca example.com`, which is useful for diagnosing certificate validation issues.
+If you want to test DoT connectivity from the command line, the kdig utility (part of the Knot DNS package) provides straightforward syntax:
+
+```bash
+# Send an encrypted DNS query via DoT
+kdig @1.1.1.1 +tls example.com
+
+# Verify TLS certificate details
+kdig @1.1.1.1 +tls +tls-ca example.com
+```
+
+These commands are particularly useful for diagnosing certificate validation issues or confirming that DoT is functioning correctly on a given network.
 
 ## DNS over HTTPS: Privacy Through Ubiquity
 
@@ -69,7 +79,25 @@ Major browsers have embraced DoH enthusiastically. Chrome versions 83 and later 
 
 This browser-level adoption is both a blessing and a challenge for network administrators. Individual users gain privacy protection without any configuration effort—the encryption just happens. But this same automatic behavior can bypass enterprise DNS policies, content filtering, and security monitoring without users or administrators necessarily realizing it. A browser configured to use an external DoH resolver will happily ignore the corporate DNS infrastructure entirely, potentially accessing blocked content, circumventing data loss prevention controls, or evading threat detection systems that rely on DNS visibility.
 
-Testing DoH is slightly more involved than testing DoT because you need to construct proper HTTP requests. Using curl, you can send a query with `curl -H "accept: application/dns-message" "https://1.1.1.1/dns-query?dns=AAABAAABAAAAAAAAB2V4YW1wbGUDY29tAAABAAE"` where the long string is a base64-encoded DNS query. For more practical testing, Cloudflare's cloudflared utility can run a local proxy that accepts standard DNS queries and forwards them over DoH, letting you use familiar tools like dig against a local port.
+Testing DoH is slightly more involved than testing DoT because you need to construct proper HTTP requests. Using curl, you can send a query directly:
+
+```bash
+# Query using DNS over HTTPS (wire format with base64-encoded query)
+curl -H "accept: application/dns-message" \
+     "https://1.1.1.1/dns-query?dns=AAABAAABAAAAAAAAB2V4YW1wbGUDY29tAAABAAE"
+```
+
+The long string in that URL is a base64-encoded DNS query for example.com. For more practical day-to-day testing, Cloudflare's cloudflared utility can run a local proxy that accepts standard DNS queries and forwards them over DoH:
+
+```bash
+# Start a local DoH proxy on port 5053
+cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query
+
+# Then query it using familiar tools
+dig @127.0.0.1 -p 5053 example.com
+```
+
+This approach lets you use familiar tools like dig against a local port while the actual queries travel encrypted to the upstream resolver.
 
 ## DNS over QUIC: The Performance-Focused Future
 
@@ -125,13 +153,49 @@ NextDNS and AdGuard DNS offer customizable filtering and logging policies that g
 
 ## Troubleshooting When Things Go Wrong
 
-When encrypted DNS doesn't work as expected, systematic troubleshooting helps isolate the issue faster than random experimentation. Connection failures are the most common problem, particularly with DoT. Because port 853 is frequently blocked by corporate networks, public WiFi, and some ISPs, the first diagnostic step is verifying that the port is reachable. Running `nc -zv 1.1.1.1 853` from a Unix-like system attempts a TCP connection to the DoT port and reports whether it succeeds. If this fails, port blocking is your likely culprit, and you'll need to either work around the block using DoH or accept unencrypted DNS on that network.
+When encrypted DNS doesn't work as expected, systematic troubleshooting helps isolate the issue faster than random experimentation. Connection failures are the most common problem, particularly with DoT. Because port 853 is frequently blocked by corporate networks, public WiFi, and some ISPs, the first diagnostic step is verifying that the port is reachable:
 
-Certificate validation failures present differently—the connection establishes but then fails during the TLS handshake. Common causes include system clock skew (TLS certificates are time-sensitive), missing or outdated root certificates, or actual certificate problems on the resolver side. Testing with `openssl s_client -connect 1.1.1.1:853` shows the certificate chain and any validation errors. Clock skew is surprisingly common in my experience; I've seen systems fail certificate validation because their clocks drifted minutes or hours from reality, particularly on devices that don't regularly sync time or have dead CMOS batteries.
+```bash
+# Test if DoT port is reachable
+nc -zv 1.1.1.1 853
+```
 
-For DoH troubleshooting, browser-specific diagnostic tools help identify configuration and resolution issues. Firefox users can navigate to `about:networking#dns` to view DNS resolution status, including whether the Trusted Recursive Resolver (TRR) feature is active and what resolver it's using. Chrome provides `chrome://net-internals/#dns` with detailed DNS resolution information including cache contents and query timing. Both browsers log DoH failures that can help identify configuration problems, though finding those logs requires some digging through browser debug interfaces.
+If this fails, port blocking is your likely culprit, and you'll need to either work around the block using DoH or accept unencrypted DNS on that network.
 
-Performance problems are trickier to diagnose because they can stem from various causes that produce similar symptoms. A geographically distant resolver adds latency to every query, which you might experience as pages loading slowly despite a fast internet connection. Connection reuse failures force repeated TLS handshakes, multiplying latency for each query. Overloaded resolvers respond slowly, though major providers like Cloudflare and Google rarely have this problem. Comparing timing across resolvers helps identify whether the problem is specific to one service or systemic to your network. The dig command with the `+stats` option shows query timing: `dig @1.1.1.1 example.com +stats` reports the query time in milliseconds, which you can compare across different resolvers and query types.
+Certificate validation failures present differently—the connection establishes but then fails during the TLS handshake. Common causes include system clock skew (TLS certificates are time-sensitive), missing or outdated root certificates, or actual certificate problems on the resolver side:
+
+```bash
+# Test TLS handshake and view certificate chain
+openssl s_client -connect 1.1.1.1:853
+
+# Check your system clock if certificates fail validation
+date
+```
+
+Clock skew is surprisingly common in my experience; I've seen systems fail certificate validation because their clocks drifted minutes or hours from reality, particularly on devices that don't regularly sync time or have dead CMOS batteries.
+
+For DoH troubleshooting, browser-specific diagnostic tools help identify configuration and resolution issues. Firefox users can navigate to the network diagnostics page to view DNS resolution status, including whether the Trusted Recursive Resolver (TRR) feature is active:
+
+```
+# Firefox DNS diagnostics
+about:networking#dns
+
+# Chrome DNS diagnostics
+chrome://net-internals/#dns
+```
+
+Both browsers log DoH failures that can help identify configuration problems, though finding those logs requires some digging through browser debug interfaces.
+
+Performance problems are trickier to diagnose because they can stem from various causes that produce similar symptoms. A geographically distant resolver adds latency to every query, which you might experience as pages loading slowly despite a fast internet connection. Connection reuse failures force repeated TLS handshakes, multiplying latency for each query. Overloaded resolvers respond slowly, though major providers like Cloudflare and Google rarely have this problem. Comparing timing across resolvers helps identify whether the problem is specific to one service or systemic to your network:
+
+```bash
+# Compare query times across different resolvers
+dig @1.1.1.1 example.com +stats | grep "Query time"
+dig @8.8.8.8 example.com +stats | grep "Query time"
+dig @9.9.9.9 example.com +stats | grep "Query time"
+```
+
+The query time is reported in milliseconds, making it easy to spot resolvers that are significantly slower than others from your location.
 
 ## Planning a Phased Implementation
 
