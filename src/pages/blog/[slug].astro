@@ -73,8 +73,16 @@ function simpleMarkdownToHtml(md: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
+  // Extract code blocks first and replace with placeholders to protect them
+  const codeBlocks: string[] = [];
+  let processedMd = escapedMd.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    const index = codeBlocks.length;
+    codeBlocks.push(`<pre><code class="language-${lang}">${code}</code></pre>`);
+    return `%%%CODEBLOCK${index}%%%`;
+  });
+
   // Now convert markdown to HTML
-  let html = escapedMd
+  let html = processedMd
     // Images (must be before links) - unescape for valid image tags
     .replace(/!\[\]\(([^)]+)\)/g, (_, src) => {
       const decodedSrc = src.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
@@ -92,8 +100,6 @@ function simpleMarkdownToHtml(md: string): string {
       }
       return '';
     })
-    // Code blocks (must be before inline code)
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
     // Headings
     .replace(/^#### (.+)$/gm, '<h4 id="$1">$1</h4>')
     .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
@@ -116,7 +122,7 @@ function simpleMarkdownToHtml(md: string): string {
     // Ordered lists
     .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
     // Paragraphs (lines with content not already processed)
-    .replace(/^(?!<[hluop]|$)(.+)$/gm, '<p>$1</p>')
+    .replace(/^(?!<[hluop]|%%%|$)(.+)$/gm, '<p>$1</p>')
     // Clean up consecutive list items
     .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
     // Tables
@@ -133,6 +139,9 @@ function simpleMarkdownToHtml(md: string): string {
     const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
     return `<h${level} id="${id}">${text}</h${level}>`;
   });
+
+  // Restore code blocks
+  html = html.replace(/%%%CODEBLOCK(\d+)%%%/g, (_, index) => codeBlocks[parseInt(index)]);
 
   // Final sanitization pass
   return sanitizeHtml(html);
