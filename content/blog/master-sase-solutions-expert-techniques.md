@@ -105,7 +105,7 @@ SASE solutions, such as Secure Web Gateways (SWG) and Firewall as a Service (FWa
 
 Integrating SASE architecture into their network infrastructure has become a top priority as organizations navigate evolving cybersecurity challenges. According to MMR Research, the projected CAGR for SASE products between 2022 and 2029 is almost 25%.
 
-![](https://cdn-images-1.medium.com/max/800/0*CtdAvbEwoT6BUe5J.jpg)
+![]()
 
 ### Top SASE Solutions on the Market
 
