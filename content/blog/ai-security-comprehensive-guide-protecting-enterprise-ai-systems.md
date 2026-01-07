@@ -16,7 +16,7 @@ tags:
   - Machine Learning Security
   - Generative AI
 image: https://images.seanfraser.io/AI%20Security%202.png
-featured: true
+featured: false
 draft: false
 ---
 
