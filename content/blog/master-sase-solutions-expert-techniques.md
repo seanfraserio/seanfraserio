@@ -11,8 +11,6 @@ image: https://images.seanfraser.io/SASE%20Main.jpg
 featured: false
 draft: false
 ---
-![]()
-
 SASE Image
 
 ### Introduction
