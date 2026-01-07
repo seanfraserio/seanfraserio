@@ -1,7 +1,10 @@
 ---
 title: "Federated Learning: Privacy-Preserving Machine Learning in Practice"
 slug: federated-learning-a-paradigm-shift-in-data-privacy-and-mode
-description: Learn how federated learning enables collaborative ML model training while keeping data at its source. Practical guide with TensorFlow Federated and Flower examples for healthcare, finance, and edge computing use cases.
+description: Learn how federated learning enables collaborative ML model
+  training while keeping data at its source. Practical guide with TensorFlow
+  Federated and Flower examples for healthcare, finance, and edge computing use
+  cases.
 date: 2024-03-01
 updated: 2026-01-07
 category: AI Security
@@ -15,7 +18,7 @@ tags:
   - Healthcare AI
   - Data Privacy
 image: https://images.seanfraser.io/Fed%20Learn%20Main.jpg
-featured: false
+featured: true
 draft: false
 ---
 
