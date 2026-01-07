@@ -5,7 +5,7 @@ slug: the-future-of-cloud-computing-is-function-as-a-servicefaas-r
 description: Every cloud architect dreams of living in a world where your
   applications run with lightning speed, your data processing occurs closer to…
 date: 2024-02-07
-category: Threat Intelligence
+category: Cloud Computing
 tags: []
 featured: false
 draft: false

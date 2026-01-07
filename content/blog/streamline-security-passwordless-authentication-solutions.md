@@ -4,7 +4,7 @@ slug: streamline-security-passwordless-authentication-solutions
 description: Enhance your security with passwordless authentication solutions.
   Learn how these innovative solutions can revolutionize your…
 date: 2024-04-17
-category: Threat Intelligence
+category: Application Security
 tags: []
 featured: false
 draft: false

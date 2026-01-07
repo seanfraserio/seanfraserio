@@ -4,7 +4,7 @@ slug: mastering-iot-computing-strategies-for-cloud-engineers
 description: Discover effective IoT computing strategies for cloud engineers on
   our blog. Explore the latest trends and insights in IoT computing.
 date: 2024-04-05
-category: Threat Intelligence
+category: Cloud Computing
 tags: []
 featured: false
 draft: false

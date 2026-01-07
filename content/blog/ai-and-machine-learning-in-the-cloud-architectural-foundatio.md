@@ -4,7 +4,7 @@ title: "AI and Machine Learning in the Cloud: Architectural Foundations for
 slug: ai-and-machine-learning-in-the-cloud-architectural-foundatio
 description: Introduction
 date: 2024-01-28
-category: Threat Intelligence
+category: AI Security
 tags: []
 image: /images/blog/ai-and-machine-learning-in-the-cloud-architectural-foundatio-0.jpg
 featured: false
