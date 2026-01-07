@@ -1,7 +1,9 @@
 ---
 title: "SIEM Tools Compared: Choosing the Right Platform for Security Operations"
 slug: essential-siem-tools-list-for-effective-threat-detection
-description: Compare leading SIEM platforms including Microsoft Sentinel, Splunk, Chronicle, and Elastic Security. Practical guidance with query examples, detection rules, and selection criteria for 2025.
+description: Compare leading SIEM platforms including Microsoft Sentinel,
+  Splunk, Chronicle, and Elastic Security. Practical guidance with query
+  examples, detection rules, and selection criteria for 2025.
 date: 2024-04-25
 updated: 2026-01-07
 category: Security Operations
@@ -14,6 +16,7 @@ tags:
   - Splunk
   - Security Analytics
   - SOC
+image: https://images.seanfraser.io/SIEM.png
 featured: false
 draft: false
 ---
