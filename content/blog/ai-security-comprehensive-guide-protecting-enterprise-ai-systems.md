@@ -1,13 +1,13 @@
 ---
-title: "AI Security: A Comprehensive Guide to Protecting Enterprise AI Systems"
+title: "GenAI Security: A Comprehensive Guide to Protecting Enterprise AI Systems"
 slug: ai-security-comprehensive-guide-protecting-enterprise-ai-systems
-description: Master AI security with this executive guide covering OWASP LLM Top
-  10, MITRE ATLAS, prompt injection defenses, AI governance frameworks, and red
-  teaming strategies. Includes implementation code and compliance roadmaps.
+description: Master GenAI security with this executive guide covering OWASP LLM
+  Top 10, MITRE ATLAS, prompt injection defenses, AI governance frameworks, and
+  red teaming strategies. Includes implementation code and compliance roadmaps.
 date: 2026-01-07
 category: AI Security
 tags:
-  - AI Security
+  - GenAI Security
   - LLM Security
   - OWASP
   - Prompt Injection
