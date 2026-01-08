@@ -1,11 +1,11 @@
 ---
-title: "Passwordless Authentication in 2025: A Practical Guide to Passkeys and FIDO2"
+title: "Passwordless Authentication in 2026: A Practical Guide to Passkeys and FIDO2"
 slug: streamline-security-passwordless-authentication-solutions
 description: Over 3 billion passkeys are now in active use globally. Learn how
   to implement passwordless authentication with this practical enterprise guide
   covering FIDO2, WebAuthn, and modern passkey deployment strategies.
-date: 2025-01-08
-updated: 2026-01-08
+date: 2026-01-08
+updated: ""
 category: Application Security
 tags:
   - passwordless
