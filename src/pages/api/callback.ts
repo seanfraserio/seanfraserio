@@ -6,8 +6,9 @@ export const GET: APIRoute = async (context) => {
   const runtime = (context.locals as any).runtime;
   const env = runtime?.env || {};
 
-  const clientId = env.OAUTH_GITHUB_CLIENT_ID || env.KEYSTATIC_GITHUB_CLIENT_ID || process.env.OAUTH_GITHUB_CLIENT_ID || process.env.KEYSTATIC_GITHUB_CLIENT_ID;
-  const clientSecret = env.OAUTH_GITHUB_CLIENT_SECRET || env.KEYSTATIC_GITHUB_CLIENT_SECRET || process.env.OAUTH_GITHUB_CLIENT_SECRET || process.env.KEYSTATIC_GITHUB_CLIENT_SECRET;
+  // Only use Cloudflare Pages environment variables - no process.env fallbacks
+  const clientId = env.OAUTH_GITHUB_CLIENT_ID || env.KEYSTATIC_GITHUB_CLIENT_ID;
+  const clientSecret = env.OAUTH_GITHUB_CLIENT_SECRET || env.KEYSTATIC_GITHUB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     return new Response('OAuth not configured', { status: 500 });
@@ -15,6 +16,7 @@ export const GET: APIRoute = async (context) => {
 
   const url = new URL(context.request.url);
   const code = url.searchParams.get('code');
+  const siteOrigin = url.origin;
 
   if (!code) {
     return new Response('No code provided', { status: 400 });
@@ -53,8 +55,9 @@ export const GET: APIRoute = async (context) => {
 <body>
   <script>
     (function() {
+      var allowedOrigin = "${siteOrigin}";
       function receiveMessage(e) {
-        console.log("receiveMessage %o", e);
+        if (e.origin !== allowedOrigin) return;
         window.opener.postMessage(
           'authorization:github:success:${JSON.stringify({ token, provider: 'github' })}',
           e.origin
@@ -62,7 +65,7 @@ export const GET: APIRoute = async (context) => {
         window.close();
       }
       window.addEventListener("message", receiveMessage, false);
-      window.opener.postMessage("authorizing:github", "*");
+      window.opener.postMessage("authorizing:github", allowedOrigin);
     })();
   </script>
 </body>
@@ -72,7 +75,6 @@ export const GET: APIRoute = async (context) => {
       headers: { 'Content-Type': 'text/html' },
     });
   } catch (error) {
-    console.error('OAuth error:', error);
     return new Response('OAuth failed', { status: 500 });
   }
 };

@@ -18,6 +18,9 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Get Cloudflare Analytics token from environment variable
+const cfAnalyticsToken = import.meta.env.CF_ANALYTICS_TOKEN;
 ---
 
 <!doctype html>
@@ -79,6 +82,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <Footer />
 
     <!-- Cloudflare Web Analytics -->
-    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "02b207321737416dbf0b6e12aa38598c"}'></script>
+    {cfAnalyticsToken && (
+      <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon={`{"token": "${cfAnalyticsToken}"}`}></script>
+    )}
   </body>
 </html>
