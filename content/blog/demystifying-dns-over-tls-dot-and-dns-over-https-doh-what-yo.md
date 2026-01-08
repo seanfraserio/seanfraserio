@@ -15,7 +15,7 @@ tags:
   - Network Security
   - Privacy
 image: /images/blog/demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo-0.png
-featured: true
+featured: false
 draft: false
 ---
 
