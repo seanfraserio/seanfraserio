@@ -19,6 +19,7 @@ const {
   </p>
 
   <form id="newsletter-form" class="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+    <input type="hidden" name="csrf_token" id="csrf-token" value="" />
     <input
       type="email"
       name="email"
@@ -57,9 +58,35 @@ const {
   const messageContainer = document.getElementById('newsletter-message');
   const successMessage = document.getElementById('success-message');
   const errorMessage = document.getElementById('error-message');
+  const csrfInput = document.getElementById('csrf-token') as HTMLInputElement;
+
+  // Generate CSRF token using crypto API
+  function generateCsrfToken(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Set CSRF token on page load and store in sessionStorage for validation
+  const csrfToken = generateCsrfToken();
+  if (csrfInput) {
+    csrfInput.value = csrfToken;
+  }
+  sessionStorage.setItem('newsletter_csrf', csrfToken);
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Validate CSRF token
+    const formData = new FormData(form);
+    const submittedToken = formData.get('csrf_token');
+    const storedToken = sessionStorage.getItem('newsletter_csrf');
+
+    if (!submittedToken || submittedToken !== storedToken) {
+      messageContainer?.classList.remove('hidden');
+      errorMessage?.classList.remove('hidden');
+      return;
+    }
 
     // Show loading state
     submitText?.classList.add('hidden');
@@ -68,11 +95,11 @@ const {
     successMessage?.classList.add('hidden');
     errorMessage?.classList.add('hidden');
 
-    const formData = new FormData(form);
     const email = formData.get('email');
 
     try {
       // Replace with your actual newsletter API endpoint
+      // Include csrf_token in the request for server-side validation
       // For now, simulate a successful submission
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -80,6 +107,11 @@ const {
       messageContainer?.classList.remove('hidden');
       successMessage?.classList.remove('hidden');
       form.reset();
+
+      // Generate new CSRF token after successful submission
+      const newToken = generateCsrfToken();
+      if (csrfInput) csrfInput.value = newToken;
+      sessionStorage.setItem('newsletter_csrf', newToken);
     } catch {
       // Show error
       messageContainer?.classList.remove('hidden');
