@@ -4,7 +4,7 @@ slug: demystifying-dns-over-tls-dot-and-dns-over-https-doh-what-yo
 description: Your DNS queries are visible to everyone between you and your
   resolver. Learn how DoT, DoH, and DoQ encrypt DNS traffic—with practical
   configuration and troubleshooting guidance for 2025.
-date: 2025-01-07
+date: 2026-01-07
 category: Network Security
 tags:
   - DNS
