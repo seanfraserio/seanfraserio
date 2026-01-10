@@ -1,7 +1,9 @@
 ---
 title: "Exploring Cyber Threat Analysis Methods: A Practitioner's Guide for 2025"
 slug: exploring-cyber-threat-analysis-methods
-description: Master cyber threat analysis methods with updated 2025 insights on MITRE ATT&CK v18, ransomware trends, APT campaigns, and AI-powered threat intelligence. A comprehensive guide for security professionals.
+description: Master cyber threat analysis methods with updated 2025 insights on
+  MITRE ATT&CK v18, ransomware trends, APT campaigns, and AI-powered threat
+  intelligence. A comprehensive guide for security professionals.
 date: 2026-01-10
 category: Security Operations
 tags:
@@ -12,6 +14,7 @@ tags:
   - siem
   - xdr
   - threat-hunting
+image: https://images.seanfraser.io/Cyber%20Threat%20Anaysis.jpg
 featured: false
 draft: false
 ---
