@@ -1,10 +1,18 @@
 ---
 title: "Unmasking the Enemy Within: Insider Threat Detection Tools"
 slug: unmasking-the-enemy-within-insider-threat-detection-tools
-description: A comprehensive guide to insider threat detection tools, covering behavioral analytics, UEBA, vendor evaluation, implementation best practices, and building effective insider risk management programs.
-date: 2025-01-10
+description: A comprehensive guide to insider threat detection tools, covering
+  behavioral analytics, UEBA, vendor evaluation, implementation best practices,
+  and building effective insider risk management programs.
+date: 2025-01-08
 category: Security Operations
-tags: [insider threat, UEBA, security operations, data loss prevention, user behavior analytics]
+tags:
+  - insider threat
+  - UEBA
+  - security operations
+  - data loss prevention
+  - user behavior analytics
+image: https://images.seanfraser.io/Enemy%20Within.jpg
 featured: false
 draft: false
 ---
