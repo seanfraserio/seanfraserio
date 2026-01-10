@@ -3,22 +3,22 @@
 
 ## 👨‍💻 Senior Solutions Architect
 
-Hello there! 👋 I'm a highly skilled and experienced Senior Solutions Architect with over 15 years of expertise in designing, implementing, and maintaining secure cloud infrastructures. My passion lies in crafting robust solutions that leverage cutting-edge cloud technologies.
+Hello there! 👋 I'm a highly skilled and experienced Senior Solutions Architect with over 20 years of expertise in designing, implementing, and maintaining secure network infrastructures. My passion lies in crafting robust solutions that leverage cutting-edge cloud technologies.
 
 ### 💼 Professional Background
 
-- **Experience:** 15+ years
-- **Specialization:** Cloud Infrastructure Design and Implementation
-- **Cloud Platforms:** Linode (Akamai), AWS, GCP, Azure
+- **Experience:** 20+ years
+- **Specialization:** Network Infrastructure Design and Implementation
+- **Cloud Platforms:** AWS, GCP, Azure
 
 ### 🚀 Expertise
 
-- **Cloud Solutions:** Proficient in deploying solutions on various cloud platforms, specializing in Linode (Akamai), AWS, GCP, and Azure.
-- **Use-Cases:** Extensive experience in high-value and specialized cloud computing use-cases.
+- **Cloud Solutions:** Proficient in deploying solutions on various cloud platforms, specializing in AWS, GCP, and Azure.
+- **Network Solutions:** Proficient in designing and deploying network solutions, including cloud platforms
+- **Use-Cases:** Extensive experience in high-value and specialized network use-cases.
 
 ### 🌐 Cloud Platforms
 
-- **Linode (Akamai)**
 - **AWS (Amazon Web Services)**
 - **GCP (Google Cloud Platform)**
 - **Azure Cloud**
