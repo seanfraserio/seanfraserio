@@ -4,8 +4,8 @@ slug: log-management-best-practices-boost-efficiency-security
 description: Your logs are either solving problems or creating them. Learn how
   to build a log management pipeline that scales, from structured logging and
   shipping architectures to retention policies and compliance requirements.
-date: 2024-06-22
-updated: 2025-01-07
+date: 2026-01-07
+updated: ""
 category: Observability
 tags:
   - Log Management
