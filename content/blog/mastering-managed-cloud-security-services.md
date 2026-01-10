@@ -1,10 +1,20 @@
 ---
 title: "Mastering Managed Cloud Security Services: A Practitioner's Guide"
 slug: mastering-managed-cloud-security-services
-description: A comprehensive guide to evaluating, selecting, and implementing managed security service providers (MSSPs) for cloud environments, covering network security, IAM, threat intelligence, and industry-specific applications.
+description: A comprehensive guide to evaluating, selecting, and implementing
+  managed security service providers (MSSPs) for cloud environments, covering
+  network security, IAM, threat intelligence, and industry-specific
+  applications.
 date: 2025-01-10
 category: Cloud Security
-tags: [MSSP, cloud security, IAM, threat intelligence, compliance, security operations]
+tags:
+  - MSSP
+  - cloud security
+  - IAM
+  - threat intelligence
+  - compliance
+  - security operations
+image: https://images.seanfraser.io/MSS.png
 featured: false
 draft: false
 ---
