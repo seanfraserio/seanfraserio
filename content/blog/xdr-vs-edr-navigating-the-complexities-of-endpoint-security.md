@@ -1,7 +1,9 @@
 ---
-title: "XDR vs EDR: A Practical Guide to Detection and Response Technologies in 2025"
+title: "XDR vs EDR: A Practical Guide to Detection and Response Technologies in 2026"
 slug: xdr-vs-edr-navigating-the-complexities-of-endpoint-security
-description: Compare XDR vs EDR vs MDR for enterprise security in 2025. Includes market data, vendor analysis, implementation challenges, and practical decision framework for security teams.
+description: Compare XDR vs EDR vs MDR for enterprise security in 2026. Includes
+  market data, vendor analysis, implementation challenges, and practical
+  decision framework for security teams.
 date: 2026-01-10
 category: Security Operations
 tags:
@@ -14,6 +16,7 @@ tags:
   - soc
   - crowdstrike
   - microsoft-defender
+image: https://images.seanfraser.io/xdrvsedr.jpg
 featured: false
 draft: false
 ---
