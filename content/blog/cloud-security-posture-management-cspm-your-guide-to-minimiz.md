@@ -5,7 +5,7 @@ slug: cloud-security-posture-management-cspm-your-guide-to-minimiz
 description: Master CSPM in 2026 with updated market data, CNAPP evolution
   insights, vendor comparisons (Wiz, Orca, Prisma Cloud), and practical
   implementation guidance for enterprise cloud security.
-date: 2026-01-10
+date: 2026-01-06
 category: Cloud Security
 tags:
   - cspm
