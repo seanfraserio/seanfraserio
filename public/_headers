@@ -42,3 +42,14 @@
 # Don't cache HTML pages (use Cloudflare's edge cache instead)
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
+
+# XML Sitemaps - ensure proper Content-Type for Google Search crawling
+/sitemap*.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+  X-Robots-Tag: noindex
+
+# RSS Feed
+/rss.xml
+  Content-Type: application/rss+xml; charset=utf-8
+  Cache-Control: public, max-age=3600
