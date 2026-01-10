@@ -1,10 +1,20 @@
 ---
 title: Enhance Cloud Security with Cybersecurity Mesh Architecture (CSMA)
 slug: enhance-cloud-security-with-cybersecurity-mesh-architecture-
-description: A comprehensive guide to Cybersecurity Mesh Architecture (CSMA), covering the four foundational layers, SASE integration, vendor landscape, implementation strategies, and measuring effectiveness for distributed security.
-date: 2025-01-10
+description: A comprehensive guide to Cybersecurity Mesh Architecture (CSMA),
+  covering the four foundational layers, SASE integration, vendor landscape,
+  implementation strategies, and measuring effectiveness for distributed
+  security.
+date: 2025-01-09
 category: Cloud Security
-tags: [CSMA, cybersecurity mesh, zero trust, SASE, identity fabric, security architecture]
+tags:
+  - CSMA
+  - cybersecurity mesh
+  - zero trust
+  - SASE
+  - identity fabric
+  - security architecture
+image: https://images.seanfraser.io/CSMA.png
 featured: false
 draft: false
 ---
