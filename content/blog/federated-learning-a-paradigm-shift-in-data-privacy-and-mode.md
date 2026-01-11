@@ -18,7 +18,7 @@ tags:
   - Healthcare AI
   - Data Privacy
 image: https://images.seanfraser.io/Fed%20Learn%20Main.jpg
-featured: true
+featured: false
 draft: false
 ---
 
