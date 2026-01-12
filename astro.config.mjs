@@ -8,7 +8,7 @@ import markdoc from '@astrojs/markdoc';
 
 export default defineConfig({
   site: 'https://seanfraser.io',
-  output: 'hybrid',
+  output: 'static',
   adapter: cloudflare({
     imageService: 'passthrough',
     platformProxy: {
