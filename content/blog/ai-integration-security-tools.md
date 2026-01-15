@@ -1,12 +1,23 @@
 ---
 title: "The Rise of AI in Security Tools: Transforming How We Defend Digital Assets"
-description: "Explore how artificial intelligence is reshaping cybersecurity operations, from autonomous threat detection to AI-powered SOCs, and learn what security leaders need to know in 2025."
-date: "2025-01-15"
-category: "Security"
-tags: ["AI", "cybersecurity", "security tools", "threat detection", "SIEM", "SOC", "XDR", "agentic AI"]
-image: "/images/blog/ai-security-tools.jpg"
-imageAlt: "Abstract visualization of AI neural networks protecting digital infrastructure"
-featured: true
+slug: ai-integration-security-tools
+description: Explore how artificial intelligence is reshaping cybersecurity
+  operations, from autonomous threat detection to AI-powered SOCs, and learn
+  what security leaders need to know in 2025.
+date: 2025-01-15
+category: Security
+tags:
+  - AI
+  - cybersecurity
+  - security tools
+  - threat detection
+  - SIEM
+  - SOC
+  - XDR
+  - agentic AI
+image: https://images.seanfraser.io/Gemini_Generated_Image.png
+imageAlt: Abstract visualization of AI neural networks protecting digital infrastructure
+featured: false
 draft: false
 ---
 
